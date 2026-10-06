@@ -1,19 +1,71 @@
 """
-NetMap - Live monitoring dashboard API.
+NetMap - Security Operations Dashboard.
 
-Provides a lightweight Flask API for displaying
-current network state, monitoring events, security
-alerts, and live monitor health.
+Provides:
+- Authentication
+- Device inventory
+- Service inventory
+- Alerts
+- Analytics
+- Risk scoring
+- Historical information
+- Historical topology
+- Security reports
+- REST API
 """
 
-from datetime import datetime
 import json
+import os
 from pathlib import Path
 
-from flask import Flask, jsonify, render_template
+from flask import (
+    Flask,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
+
+from netmap.alerts import (
+    acknowledge_alert,
+    list_alerts,
+    resolve_alert,
+)
+
+from netmap.analytics import (
+    dashboard_analytics,
+)
+
+from netmap.auth import (
+    authenticate,
+)
+
+from netmap.database import (
+    init_database,
+    list_devices,
+    list_events,
+    list_services,
+)
+
+from netmap.history import (
+    device_history,
+    topology_history,
+)
+
+from netmap.security_report import (
+    generate_html_report,
+    generate_json_report,
+)
 
 
 app = Flask(__name__)
+
+app.secret_key = os.environ.get(
+    "NETMAP_SECRET_KEY",
+    "CHANGE_THIS_SECRET_KEY",
+)
 
 
 REPORT_PATH = Path(
@@ -24,33 +76,43 @@ TOPOLOGY_PATH = Path(
     "reports/netmap_topology.json"
 )
 
-EVENT_LOG = Path(
-    "reports/netmap_events.log"
-)
-
-HEARTBEAT_FILE = Path(
+HEARTBEAT_PATH = Path(
     "reports/netmap_heartbeat.json"
 )
 
-ALERT_FILE = Path(
-    "reports/netmap_alerts.json"
-)
+
+init_database()
 
 
-def read_json(path: Path):
-    """Read a JSON file safely."""
+# ============================================================================
+# Helpers
+# ============================================================================
+
+def authenticated():
+    """Return whether the current session is authenticated."""
+
+    return bool(
+        session.get(
+            "authenticated"
+        )
+    )
+
+
+def read_json(
+    path: Path,
+):
+    """Read JSON safely."""
 
     if not path.exists():
         return {}
 
     try:
 
-        with path.open(
-            "r",
-            encoding="utf-8",
-        ) as file:
-
-            return json.load(file)
+        return json.loads(
+            path.read_text(
+                encoding="utf-8"
+            )
+        )
 
     except (
         OSError,
@@ -60,105 +122,130 @@ def read_json(path: Path):
         return {}
 
 
-def read_events() -> list[str]:
-    """Read monitoring events."""
+def protected_response():
+    """Return an authentication error response."""
 
-    if not EVENT_LOG.exists():
-        return []
-
-    try:
-
-        with EVENT_LOG.open(
-            "r",
-            encoding="utf-8",
-        ) as file:
-
-            return [
-                line.strip()
-                for line in file
-                if line.strip()
-            ]
-
-    except OSError:
-
-        return []
-
-
-def get_monitor_status() -> dict:
-    """Determine live monitor health from heartbeat."""
-
-    heartbeat = read_json(
-        HEARTBEAT_FILE
-    )
-
-    if not heartbeat:
-
-        return {
-            "status": "offline",
-            "last_seen": None,
-            "age_seconds": None,
+    return jsonify(
+        {
+            "error":
+                "Authentication required"
         }
+    ), 401
 
-    timestamp = heartbeat.get(
-        "timestamp"
-    )
 
-    if not timestamp:
+# ============================================================================
+# Authentication
+# ============================================================================
 
-        return {
-            "status": "offline",
-            "last_seen": None,
-            "age_seconds": None,
-        }
+@app.route(
+    "/login",
+    methods=[
+        "GET",
+        "POST",
+    ],
+)
+def login():
 
-    try:
+    if request.method == "POST":
 
-        heartbeat_time = datetime.fromisoformat(
-            timestamp
+        username = request.form.get(
+            "username",
+            "",
         )
 
-        now = datetime.now()
+        password = request.form.get(
+            "password",
+            "",
+        )
 
-        age_seconds = (
-            now - heartbeat_time
-        ).total_seconds()
+        if authenticate(
+            username,
+            password,
+        ):
 
-    except (
-        ValueError,
-        TypeError,
-    ):
+            session.clear()
 
-        return {
-            "status": "offline",
-            "last_seen": timestamp,
-            "age_seconds": None,
-        }
+            session[
+                "authenticated"
+            ] = True
 
-    if age_seconds <= 30:
+            session[
+                "username"
+            ] = username
 
-        status = "running"
+            return redirect(
+                url_for(
+                    "dashboard"
+                )
+            )
 
-    elif age_seconds <= 90:
+        return render_template(
+            "login.html",
+            error="Invalid credentials",
+        )
 
-        status = "stale"
+    return render_template(
+        "login.html"
+    )
 
-    else:
 
-        status = "offline"
+@app.route("/logout")
+def logout():
 
-    return {
-        "status": status,
-        "last_seen": timestamp,
-        "age_seconds": round(
-            age_seconds,
-            1,
+    session.clear()
+
+    return redirect(
+        url_for("login")
+    )
+
+
+# ============================================================================
+# Dashboard
+# ============================================================================
+
+@app.route("/")
+def dashboard():
+
+    if not authenticated():
+
+        return redirect(
+            url_for("login")
+        )
+
+    return render_template(
+        "dashboard.html",
+        username=session.get(
+            "username",
+            "admin",
         ),
-    }
+    )
 
 
-@app.get("/api/status")
+# ============================================================================
+# Health
+# ============================================================================
+
+@app.route("/api/health")
+def health():
+
+    return jsonify(
+        {
+            "status": "ok",
+            "service":
+                "NetMap Dashboard API",
+        }
+    )
+
+
+# ============================================================================
+# Main dashboard status
+# ============================================================================
+
+@app.route("/api/status")
 def status():
-    """Return current NetMap status."""
+
+    if not authenticated():
+        return protected_response()
 
     report = read_json(
         REPORT_PATH
@@ -168,16 +255,21 @@ def status():
         TOPOLOGY_PATH
     )
 
-    events = read_events()
-
-    alerts = read_json(
-        ALERT_FILE
+    heartbeat = read_json(
+        HEARTBEAT_PATH
     )
 
-    if not isinstance(alerts, list):
-        alerts = []
+    devices = list_devices()
 
-    monitor = get_monitor_status()
+    alerts = list_alerts(
+        limit=500
+    )
+
+    events = list_events(
+        limit=100
+    )
+
+    analytics = dashboard_analytics()
 
     return jsonify(
         {
@@ -195,57 +287,296 @@ def status():
                     {},
                 ),
 
+            "heartbeat":
+                heartbeat,
+
             "devices":
-                report.get(
-                    "devices",
-                    [],
-                ),
+                devices,
 
             "topology":
                 topology,
 
             "events":
-                events[-50:],
-
-            "last_event":
-                events[-1]
-                if events
-                else None,
+                events,
 
             "alerts":
-                alerts[-50:],
+                alerts,
 
-            "monitor":
-                monitor,
+            "analytics":
+                analytics,
         }
     )
 
 
-@app.get("/api/health")
-def health():
-    """Health check endpoint."""
+# ============================================================================
+# Devices
+# ============================================================================
+
+@app.route("/api/devices")
+def devices():
+
+    if not authenticated():
+        return protected_response()
+
+    return jsonify(
+        list_devices()
+    )
+
+
+@app.route(
+    "/api/devices/<path:ip>"
+)
+def api_device_history(
+    ip: str,
+):
+
+    if not authenticated():
+        return protected_response()
+
+    return jsonify(
+        device_history(ip)
+    )
+
+
+# ============================================================================
+# Services
+# ============================================================================
+
+@app.route("/api/services")
+def api_services():
+
+    if not authenticated():
+        return protected_response()
+
+    device_id = request.args.get(
+        "device_id",
+        type=int,
+    )
+
+    return jsonify(
+        list_services(
+            device_id=device_id
+        )
+    )
+
+
+# ============================================================================
+# Events
+# ============================================================================
+
+@app.route("/api/events")
+def api_events():
+
+    if not authenticated():
+        return protected_response()
+
+    limit = request.args.get(
+        "limit",
+        default=100,
+        type=int,
+    )
+
+    severity = request.args.get(
+        "severity"
+    )
+
+    event_type = request.args.get(
+        "event_type"
+    )
+
+    return jsonify(
+        list_events(
+            limit=max(
+                1,
+                min(limit, 500),
+            ),
+            severity=severity,
+            event_type=event_type,
+        )
+    )
+
+
+# ============================================================================
+# Alerts
+# ============================================================================
+
+@app.route("/api/alerts")
+def alerts():
+
+    if not authenticated():
+        return protected_response()
+
+    status_filter = request.args.get(
+        "status"
+    )
+
+    severity_filter = request.args.get(
+        "severity"
+    )
+
+    alert_type = request.args.get(
+        "alert_type"
+    )
+
+    limit = request.args.get(
+        "limit",
+        default=500,
+        type=int,
+    )
+
+    return jsonify(
+        list_alerts(
+            status=status_filter,
+            severity=severity_filter,
+            alert_type=alert_type,
+            limit=max(
+                1,
+                min(limit, 500),
+            ),
+        )
+    )
+
+
+@app.route(
+    "/api/alerts/<int:alert_id>/acknowledge",
+    methods=["POST"],
+)
+def api_acknowledge(
+    alert_id: int,
+):
+
+    if not authenticated():
+        return protected_response()
+
+    username = session.get(
+        "username",
+        "admin",
+    )
+
+    success = acknowledge_alert(
+        alert_id,
+        username,
+    )
 
     return jsonify(
         {
-            "status": "ok",
-            "service": "NetMap Dashboard API",
+            "success":
+                success,
+            "alert_id":
+                alert_id,
         }
     )
 
 
-@app.get("/")
-def dashboard():
-    """Serve the NetMap dashboard."""
+@app.route(
+    "/api/alerts/<int:alert_id>/resolve",
+    methods=["POST"],
+)
+def api_resolve(
+    alert_id: int,
+):
 
-    return render_template(
-        "dashboard.html"
+    if not authenticated():
+        return protected_response()
+
+    success = resolve_alert(
+        alert_id
     )
 
+    return jsonify(
+        {
+            "success":
+                success,
+            "alert_id":
+                alert_id,
+        }
+    )
+
+
+# ============================================================================
+# Historical topology
+# ============================================================================
+
+@app.route(
+    "/api/topology/history"
+)
+def api_topology_history():
+
+    if not authenticated():
+        return protected_response()
+
+    limit = request.args.get(
+        "limit",
+        default=50,
+        type=int,
+    )
+
+    return jsonify(
+        topology_history(
+            limit=max(
+                1,
+                min(limit, 100),
+            )
+        )
+    )
+
+
+# ============================================================================
+# Analytics
+# ============================================================================
+
+@app.route(
+    "/api/analytics"
+)
+def api_analytics():
+
+    if not authenticated():
+        return protected_response()
+
+    return jsonify(
+        dashboard_analytics()
+    )
+
+
+# ============================================================================
+# Security reports
+# ============================================================================
+
+@app.route(
+    "/api/reports/security"
+)
+def security_report():
+
+    if not authenticated():
+        return protected_response()
+
+    json_path = (
+        generate_json_report()
+    )
+
+    html_path = (
+        generate_html_report()
+    )
+
+    return jsonify(
+        {
+            "json":
+                str(json_path),
+
+            "html":
+                str(html_path),
+        }
+    )
+
+
+# ============================================================================
+# Application entrypoint
+# ============================================================================
 
 if __name__ == "__main__":
 
     app.run(
-        host="127.0.0.1",
+        host="0.0.0.0",
         port=5001,
         debug=False,
     )

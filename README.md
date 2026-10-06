@@ -1,9 +1,9 @@
 # NetMap
 
-### Linux Network Discovery • Topology Mapping • Live Monitoring • Security Alerting
+### Linux Network Discovery • Device Intelligence • Live Monitoring • Security Operations
 
 <p align="center">
-  <strong>A practical Linux cybersecurity project for network visibility, continuous monitoring, topology mapping, and security alert generation.</strong>
+  <strong>A Python-based network security monitoring platform for discovering devices, identifying services, tracking network changes, detecting anomalies, scoring risk, and investigating security events.</strong>
 </p>
 
 <p align="center">
@@ -12,77 +12,290 @@
 ![Linux](https://img.shields.io/badge/Platform-Linux-black?logo=linux)
 ![Nmap](https://img.shields.io/badge/Scanner-Nmap-4682B4)
 ![Flask](https://img.shields.io/badge/Dashboard-Flask-000000?logo=flask)
-![Pytest](https://img.shields.io/badge/Tests-pytest-0A9EDC?logo=pytest)
+![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?logo=sqlite)
+![Pytest](https://img.shields.io/badge/Tests-24%20passing-0A9EDC?logo=pytest)
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Version](https://img.shields.io/badge/Version-1.0.0-orange)
+![Version](https://img.shields.io/badge/Version-2.0.0-orange)
 
 </p>
 
 ---
 
-## 📌 Overview
+# 📌 Overview
 
 **NetMap** is a Linux-based network discovery and security monitoring platform written in Python.
 
-It discovers active devices on an authorized IPv4 network, identifies the default gateway and local host, builds a network topology, continuously monitors the environment for changes, and converts those changes into structured security alerts.
+It started as a lightweight network discovery and topology mapping tool and evolved into a security-focused monitoring platform capable of:
 
-The project combines network discovery, topology visualization, live monitoring, event logging, alert generation, REST APIs, and a lightweight SOC-style dashboard.
+* discovering devices on an authorized network
+* identifying MAC addresses and vendors
+* classifying devices
+* detecting open ports and services
+* identifying service versions
+* attempting operating system fingerprinting
+* continuously monitoring network changes
+* detecting new and removed devices
+* detecting MAC, port, and OS changes
+* generating security alerts
+* calculating device and network risk
+* storing historical network information
+* maintaining topology history
+* providing an authenticated SOC-style dashboard
+* generating security reports
+* exposing protected REST APIs
 
-### Core workflow
+NetMap is designed as a **practical cybersecurity portfolio project** demonstrating concepts relevant to:
 
-```text
-Network Discovery
-       ↓
-Device Identification
-       ↓
-Gateway Detection
-       ↓
-Device Classification
-       ↓
-Topology Mapping
-       ↓
-Live Monitoring
-       ↓
-Change Detection
-       ↓
-Security Alerting
-       ↓
-SOC-Style Dashboard
-```
-
-NetMap was developed as a practical cybersecurity portfolio project demonstrating skills in:
-
-* Linux
-* Python
-* Computer Networking
-* Nmap
+* Security Operations Centers
+* Network Security
 * Network Monitoring
-* Security Alerting
-* Flask
-* REST APIs
-* Automation
-* Testing
-* Security Operations concepts
+* Threat Detection
+* Alert Triage
+* Security Investigation
+* Incident Detection
+* Linux Administration
+* Python Automation
+* REST API Development
+* Security Analytics
 
 > **⚠️ Authorized Use Only:** NetMap should only be used on networks and systems that you own or have explicit permission to monitor.
 
 ---
 
-# 📸 Screenshots
+# 🎯 Project Goal
 
-## Live Security Dashboard
+The primary goal of NetMap is to answer a simple security question:
 
-The NetMap dashboard provides a centralized view of network information, active devices, topology, monitoring status, security alerts, and events.
+> **"What devices are on my network, what are they exposing, and what changed?"**
+
+Instead of performing a single network scan and throwing away the results, NetMap maintains an evolving view of the network.
+
+```text
+                    NETWORK
+                       │
+                       ▼
+               ┌───────────────┐
+               │   DISCOVERY   │
+               └───────┬───────┘
+                       │
+                       ▼
+               ┌───────────────┐
+               │ IDENTIFICATION│
+               └───────┬───────┘
+                       │
+                       ▼
+               ┌───────────────┐
+               │   ENRICHMENT  │
+               └───────┬───────┘
+                       │
+             ┌─────────┼─────────┐
+             ▼         ▼         ▼
+         Services     OS      Fingerprint
+             │         │         │
+             └─────────┼─────────┘
+                       ▼
+               ┌───────────────┐
+               │   BASELINE    │
+               └───────┬───────┘
+                       │
+                       ▼
+               ┌───────────────┐
+               │ CHANGE /      │
+               │ ANOMALY       │
+               │ DETECTION     │
+               └───────┬───────┘
+                       │
+                       ▼
+               ┌───────────────┐
+               │ RISK SCORING  │
+               └───────┬───────┘
+                       │
+                       ▼
+               ┌───────────────┐
+               │ SECURITY      │
+               │ ALERT         │
+               └───────┬───────┘
+                       │
+                       ▼
+               ┌───────────────┐
+               │ INVESTIGATION │
+               └───────────────┘
+```
+
+---
+
+# 🚀 NetMap 2.0
+
+NetMap 2.0 significantly expands the original network scanner into a persistent network security monitoring platform.
+
+## Major capabilities
+
+### 🔎 Network Discovery
+
+* IPv4 interface discovery
+* Automatic local network detection
+* Gateway detection
+* Nmap host discovery
+* Active device discovery
+* Hostname collection
+* MAC address collection
+* Vendor identification
+
+### 🧠 Device Intelligence
+
+* Device fingerprinting
+* Device role classification
+* Device type identification
+* Local host identification
+* Gateway identification
+* Vendor analysis
+* Device observation tracking
+
+### 🔐 Service Discovery
+
+* TCP service discovery
+* Open-port detection
+* Service identification
+* Service version detection
+* Historical service tracking
+* New-port detection
+
+### 🖥️ Operating System Detection
+
+NetMap integrates Nmap OS fingerprinting to attempt operating system identification.
+
+Example:
+
+```text
+Device
+ ├── IP: 10.10.10.1
+ ├── MAC: AA:BB:CC:DD:EE:01
+ ├── Vendor: VMware
+ ├── Role: Gateway
+ └── OS: VMware Player virtual NAT device
+```
+
+OS detection depends on the target system, network conditions, Nmap fingerprint availability, and scan privileges.
+
+### 📡 Live Monitoring
+
+NetMap continuously scans the authorized network and compares the current state against previous observations.
+
+It can detect:
+
+* New devices
+* Removed devices
+* MAC address changes
+* New ports
+* Closed ports
+* Operating system changes
+* Network anomalies
+
+### 🚨 Security Alerting
+
+Alerts are generated from detected network changes and anomalies.
+
+Supported severity levels:
+
+```text
+INFO
+LOW
+MEDIUM
+HIGH
+CRITICAL
+```
+
+Alerts support:
+
+* persistence
+* severity
+* status
+* acknowledgement
+* resolution
+* filtering
+* historical investigation
+
+### 📊 Risk Scoring
+
+NetMap calculates:
+
+* device-level risk
+* network-level risk
+
+Risk considers security-relevant characteristics such as exposed services and detected anomalies.
+
+Example:
+
+```text
+Device Risk
+
+Score: 72
+Level: HIGH
+
+Factors:
+- Multiple exposed services
+- Security anomaly detected
+- Unexpected network change
+```
+
+### 🗄️ Historical Database
+
+NetMap 2.0 uses SQLite to maintain persistent information about the network.
+
+Stored information includes:
+
+* devices
+* services
+* events
+* alerts
+* topology snapshots
+* device observations
+* historical state
+
+### 🖥️ SOC Dashboard
+
+The Flask dashboard provides a centralized security operations view.
+
+Dashboard capabilities include:
+
+* authenticated login
+* network status
+* device inventory
+* service inventory
+* alert management
+* risk score
+* analytics
+* events
+* topology history
+* security reports
+
+### 📄 Security Reports
+
+NetMap can generate:
+
+* JSON security reports
+* HTML security reports
+* JSON network reports
+* CSV device reports
+* topology HTML
+
+---
+
+# 🖼️ Screenshots
+
+## Security Dashboard
+
+The NetMap dashboard provides a centralized view of devices, services, alerts, risk, events, analytics, and network topology.
 
 <p align="center">
-  <img src="screenshots/dashboard.png" alt="NetMap Live Security Dashboard" width="100%">
+  <img src="screenshots/dashboard.png" alt="NetMap 2.0 Security Dashboard" width="100%">
 </p>
 
 ---
 
 ## Network Topology
 
-NetMap generates a visual representation of the discovered network, including the gateway, local host, and discovered devices.
+NetMap generates an interactive topology representation of the discovered network.
 
 <p align="center">
   <img src="screenshots/topology.png" alt="NetMap Network Topology" width="90%">
@@ -90,19 +303,19 @@ NetMap generates a visual representation of the discovered network, including th
 
 ---
 
-## Live Network Monitoring
+## Live Monitoring
 
-The live monitoring engine repeatedly scans the network and compares the current state against the previous scan.
+The monitoring engine repeatedly scans the network and compares each scan against the previous network state.
 
 <p align="center">
-  <img src="screenshots/live-monitor.png" alt="NetMap Live Network Monitoring" width="90%">
+  <img src="screenshots/live-monitor.png" alt="NetMap Live Monitoring" width="90%">
 </p>
 
 ---
 
 ## Network Discovery
 
-NetMap uses Nmap to identify active hosts and collect available network information.
+Initial network discovery identifies active hosts and network information.
 
 <p align="center">
   <img src="screenshots/network-scan.png" alt="NetMap Network Discovery" width="90%">
@@ -110,98 +323,926 @@ NetMap uses Nmap to identify active hosts and collect available network informat
 
 ---
 
-# ✨ Features
-
-| Feature                   | Description                                      |
-| ------------------------- | ------------------------------------------------ |
-| 🔎 Network Discovery      | Discovers active devices using Nmap              |
-| 🖥️ Interface Detection   | Identifies the local IPv4 interface and network  |
-| 🌐 Gateway Detection      | Detects the default IPv4 gateway                 |
-| 🏷️ Device Classification | Classifies Gateway, Local Host, and Device       |
-| 🗺️ Topology Mapping      | Builds a graph representation of the network     |
-| 📡 Live Monitoring        | Continuously monitors network changes            |
-| 🔄 Change Detection       | Detects new and removed devices                  |
-| 🚨 Security Alerts        | Converts device changes into structured alerts   |
-| 💓 Monitor Heartbeat      | Tracks the health of the live monitoring process |
-| 📊 SOC Dashboard          | Provides a browser-based monitoring interface    |
-| 🔌 REST API               | Exposes network information through Flask        |
-| 📄 Reporting              | Generates JSON, CSV, and topology reports        |
-| 🧪 Automated Testing      | pytest-based test suite                          |
-
----
-
 # 🏗️ Architecture
 
 ```text
-                         ┌─────────────────────┐
-                         │      NetMap CLI     │
-                         └──────────┬──────────┘
+                         ┌──────────────────────┐
+                         │   Authorized LAN     │
+                         └──────────┬───────────┘
                                     │
                                     ▼
-                         ┌─────────────────────┐
-                         │ Interface Discovery │
-                         │       psutil        │
-                         └──────────┬──────────┘
+                         ┌──────────────────────┐
+                         │   Network Discovery  │
+                         │                      │
+                         │  psutil + Nmap       │
+                         └──────────┬───────────┘
                                     │
                                     ▼
-                         ┌─────────────────────┐
-                         │   Network Scanner   │
-                         │        Nmap         │
-                         └──────────┬──────────┘
+                    ┌──────────────────────────────┐
+                    │      Device Intelligence     │
+                    │                              │
+                    │ Fingerprinting               │
+                    │ Classification               │
+                    │ Vendor Detection             │
+                    │ Gateway Detection            │
+                    └──────────────┬───────────────┘
+                                   │
+                    ┌──────────────┼──────────────┐
+                    ▼              ▼              ▼
+             ┌────────────┐ ┌────────────┐ ┌────────────┐
+             │  Services  │ │ OS Detect  │ │   Device   │
+             │  -sV       │ │    -O      │ │  Metadata  │
+             └─────┬──────┘ └─────┬──────┘ └─────┬──────┘
+                   │              │              │
+                   └──────────────┼──────────────┘
+                                  ▼
+                         ┌──────────────────────┐
+                         │ Historical Database  │
+                         │       SQLite         │
+                         └──────────┬───────────┘
                                     │
                                     ▼
-                         ┌─────────────────────┐
-                         │ Gateway Detection   │
-                         │ Linux Routing Table │
-                         └──────────┬──────────┘
+                         ┌──────────────────────┐
+                         │ Security Engine      │
+                         │                      │
+                         │ Change Detection     │
+                         │ Anomaly Detection    │
+                         │ Risk Scoring         │
+                         │ Alert Generation     │
+                         └──────────┬───────────┘
+                                    │
+                     ┌──────────────┼──────────────┐
+                     ▼              ▼              ▼
+              ┌────────────┐ ┌────────────┐ ┌────────────┐
+              │   Events   │ │   Alerts   │ │ Topology   │
+              │   History  │ │   History  │ │  History   │
+              └────────────┘ └────────────┘ └────────────┘
                                     │
                                     ▼
-                         ┌─────────────────────┐
-                         │ Device Classifier   │
-                         └──────────┬──────────┘
-                                    │
-                    ┌───────────────┴───────────────┐
-                    ▼                               ▼
-          ┌────────────────────┐          ┌────────────────────┐
-          │  Topology Engine   │          │ Reporting Engine   │
-          └─────────┬──────────┘          └─────────┬──────────┘
-                    │                               │
-                    ▼                               ▼
-          ┌────────────────────┐          ┌────────────────────┐
-          │ Interactive HTML   │          │ JSON / CSV Reports │
-          └────────────────────┘          └────────────────────┘
-
-                         Live Monitoring
-                                │
-                                ▼
-                    ┌────────────────────┐
-                    │ Device Comparison  │
-                    └─────────┬──────────┘
-                              │
-                    ┌─────────┴─────────┐
-                    ▼                   ▼
-              New Device         Device Removed
-                    │                   │
-                    └─────────┬─────────┘
-                              ▼
-                    ┌────────────────────┐
-                    │   Alert Engine     │
-                    └─────────┬──────────┘
-                              │
-                              ▼
-                    ┌────────────────────┐
-                    │ Alert History JSON │
-                    └─────────┬──────────┘
-                              │
-                              ▼
-                    ┌────────────────────┐
-                    │  Flask Dashboard   │
-                    └────────────────────┘
+                         ┌──────────────────────┐
+                         │    Flask Dashboard   │
+                         │                      │
+                         │ Devices              │
+                         │ Services             │
+                         │ Alerts               │
+                         │ Risk                 │
+                         │ Analytics             │
+                         │ Events               │
+                         │ Topology              │
+                         │ Reports               │
+                         └──────────────────────┘
 ```
 
 ---
 
-# 📂 Project Structure
+# 🔐 Security Operations Workflow
+
+NetMap follows a simplified SOC-style monitoring workflow.
+
+```text
+┌──────────────┐
+│   DISCOVER   │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│  IDENTIFY    │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│   ENRICH     │
+│              │
+│ Fingerprint  │
+│ Services     │
+│ OS           │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│   COMPARE    │
+│              │
+│ New Device   │
+│ Removed      │
+│ MAC Change   │
+│ New Port     │
+│ OS Change    │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│   ANALYZE    │
+│              │
+│ Anomalies    │
+│ Risk         │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│    ALERT     │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│ INVESTIGATE  │
+│              │
+│ History      │
+│ Services     │
+│ Events       │
+│ Topology     │
+└──────┬───────┘
+       │
+       ▼
+┌──────────────┐
+│    RESPOND   │
+│              │
+│ Acknowledge  │
+│ Resolve      │
+└──────────────┘
+```
+
+---
+
+# 🧩 Core Components
+
+## `network.py`
+
+Responsible for discovering the local network environment.
+
+Capabilities:
+
+* interface detection
+* IPv4 detection
+* subnet detection
+* network calculation
+* MAC address retrieval
+
+---
+
+## `scanner.py`
+
+Responsible for Nmap host discovery.
+
+Example command concept:
+
+```bash
+nmap -sn 10.10.10.0/24
+```
+
+The scanner extracts:
+
+* IP address
+* hostname
+* MAC address
+* vendor
+* host status
+
+---
+
+## `gateway.py`
+
+Detects the default gateway from the Linux routing table.
+
+Example:
+
+```bash
+ip route show default
+```
+
+---
+
+## `classifier.py`
+
+Classifies discovered devices.
+
+Example classifications:
+
+```text
+Local Host
+Gateway
+Device
+Unknown
+```
+
+---
+
+## `fingerprint.py`
+
+Builds additional device intelligence from available network metadata.
+
+Fingerprinting can include:
+
+* vendor
+* MAC prefix
+* hostname
+* device role
+* observed services
+* operating system information
+
+---
+
+## `services.py`
+
+Performs service discovery using Nmap.
+
+Conceptually:
+
+```bash
+nmap -sV --open -T3 <target>
+```
+
+Collected information includes:
+
+```text
+Port
+Protocol
+Service
+Version
+```
+
+Example:
+
+```text
+53/tcp
+service: domain
+version: dnsmasq 2.83
+```
+
+---
+
+## `os_detection.py`
+
+Attempts operating system identification using Nmap.
+
+Conceptually:
+
+```bash
+nmap -O --osscan-guess <target>
+```
+
+The result is stored with the device history when available.
+
+---
+
+## `database.py`
+
+Provides the SQLite persistence layer.
+
+The database stores:
+
+```text
+Devices
+Services
+Events
+Alerts
+Topology Snapshots
+Baselines
+```
+
+This allows NetMap to retain historical context between monitoring cycles.
+
+---
+
+## `history.py`
+
+Provides historical investigation functionality.
+
+Capabilities include:
+
+* device history
+* device services
+* device events
+* device alerts
+* topology history
+* latest inventory
+
+---
+
+## `monitor.py`
+
+Compares network states.
+
+Conceptually:
+
+```text
+Previous Scan
+      │
+      ▼
+Current Scan
+      │
+      ▼
+┌─────────────────────┐
+│ State Comparison    │
+├─────────────────────┤
+│ Added Devices       │
+│ Removed Devices     │
+│ Changed Devices     │
+│ Unchanged Devices   │
+└─────────────────────┘
+```
+
+---
+
+## `anomaly.py`
+
+Analyzes network changes and generates security-relevant anomalies.
+
+Potential anomaly categories include:
+
+* unexpected device
+* unexpected service
+* MAC address change
+* operating system change
+* unusual device state
+
+---
+
+## `risk.py`
+
+Calculates security risk.
+
+The system produces:
+
+```text
+Risk Score
+Risk Level
+Risk Factors
+```
+
+Example levels:
+
+```text
+LOW
+MEDIUM
+HIGH
+CRITICAL
+```
+
+---
+
+## `alerts.py`
+
+Provides the alert engine.
+
+Alert lifecycle:
+
+```text
+OPEN
+ │
+ ├── ACKNOWLEDGED
+ │
+ └── RESOLVED
+```
+
+Alerts can be filtered by:
+
+* severity
+* status
+* alert type
+
+---
+
+## `analytics.py`
+
+Provides dashboard analytics.
+
+Analytics include:
+
+* device counts
+* service counts
+* event counts
+* alert counts
+* severity distribution
+* service distribution
+* device roles
+* operating systems
+* network risk
+
+---
+
+## `topology.py`
+
+Builds the logical network topology.
+
+Example:
+
+```text
+                 Gateway
+                    │
+          ┌─────────┴─────────┐
+          │                   │
+       Local Host           Device
+```
+
+---
+
+## `topology_view.py`
+
+Generates a standalone HTML visualization of the network topology.
+
+The topology view is designed to work without requiring an external frontend framework.
+
+---
+
+## `security_report.py`
+
+Generates security reports in:
+
+* JSON
+* HTML
+
+Reports include:
+
+* network analytics
+* devices
+* services
+* alerts
+* risk information
+
+---
+
+## `auth.py`
+
+Provides dashboard authentication.
+
+Configuration is environment-variable based.
+
+Supported settings:
+
+```text
+NETMAP_ADMIN_USER
+NETMAP_ADMIN_PASSWORD
+NETMAP_SECRET_KEY
+```
+
+For production environments, credentials should be configured securely rather than relying on development defaults.
+
+---
+
+## `dashboard.py`
+
+Provides the Flask web dashboard and protected API.
+
+Dashboard features include:
+
+* authentication
+* device inventory
+* service inventory
+* security alerts
+* analytics
+* risk score
+* event history
+* topology history
+* report generation
+
+---
+
+# 📡 REST API
+
+NetMap exposes a lightweight REST API through Flask.
+
+## Health
+
+```http
+GET /api/health
+```
+
+Returns the application health state.
+
+---
+
+## Network Status
+
+```http
+GET /api/status
+```
+
+Returns current network monitoring information.
+
+---
+
+## Devices
+
+```http
+GET /api/devices
+```
+
+Returns the current device inventory.
+
+---
+
+## Device History
+
+```http
+GET /api/devices/<ip>
+```
+
+Returns historical information for a device.
+
+---
+
+## Services
+
+```http
+GET /api/services
+```
+
+Returns discovered network services.
+
+---
+
+## Events
+
+```http
+GET /api/events
+```
+
+Returns monitoring and security events.
+
+---
+
+## Alerts
+
+```http
+GET /api/alerts
+```
+
+Returns security alerts.
+
+Optional filters include:
+
+```text
+status
+severity
+alert_type
+```
+
+---
+
+## Acknowledge Alert
+
+```http
+POST /api/alerts/<id>/acknowledge
+```
+
+Marks an alert as acknowledged.
+
+---
+
+## Resolve Alert
+
+```http
+POST /api/alerts/<id>/resolve
+```
+
+Marks an alert as resolved.
+
+---
+
+## Analytics
+
+```http
+GET /api/analytics
+```
+
+Returns network security analytics.
+
+---
+
+## Historical Topology
+
+```http
+GET /api/topology/history
+```
+
+Returns stored topology snapshots.
+
+---
+
+## Security Report
+
+```http
+GET /api/reports/security
+```
+
+Generates or returns the security report.
+
+---
+
+# 📊 Dashboard
+
+The NetMap dashboard provides a lightweight SOC-style interface.
+
+The dashboard presents:
+
+```text
+┌─────────────────────────────────────────────────┐
+│                 NETMAP SOC                      │
+├─────────────────────────────────────────────────┤
+│ Devices │ Services │ Alerts │ Risk │ Events     │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│             NETWORK STATUS                     │
+│                                                 │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│             TOPOLOGY VIEW                      │
+│                                                 │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│             SECURITY ALERTS                    │
+│                                                 │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│             DEVICE INVENTORY                   │
+│                                                 │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│             SERVICE INVENTORY                  │
+│                                                 │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│             ANALYTICS                          │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
+
+---
+
+# 🚨 Alert Lifecycle
+
+NetMap alerts follow a simple analyst workflow.
+
+```text
+             Detection
+                 │
+                 ▼
+              ┌─────┐
+              │ OPEN│
+              └──┬──┘
+                 │
+          Analyst Review
+                 │
+        ┌────────┴────────┐
+        ▼                 ▼
+┌───────────────┐  ┌───────────────┐
+│ ACKNOWLEDGED  │  │     OPEN      │
+└───────┬───────┘  └───────────────┘
+        │
+        ▼
+┌───────────────┐
+│   RESOLVED    │
+└───────────────┘
+```
+
+This models a simplified real-world SOC alert handling process.
+
+---
+
+# 🔍 Example Investigation
+
+Suppose an unknown device appears on the network.
+
+NetMap can process it as follows:
+
+```text
+New Device Detected
+        │
+        ▼
+MAC / Vendor Collection
+        │
+        ▼
+Device Fingerprinting
+        │
+        ▼
+Service Discovery
+        │
+        ▼
+OS Detection
+        │
+        ▼
+Risk Calculation
+        │
+        ▼
+Security Alert
+        │
+        ▼
+SQLite Persistence
+        │
+        ▼
+Dashboard
+        │
+        ▼
+Analyst Investigation
+```
+
+The analyst can then inspect:
+
+* IP address
+* MAC address
+* vendor
+* hostname
+* role
+* open ports
+* services
+* operating system
+* historical events
+* alerts
+* risk score
+* topology context
+
+---
+
+# 🗄️ Historical Intelligence
+
+NetMap 2.0 is designed around persistent network history.
+
+## Device history
+
+A device can be tracked over multiple monitoring cycles.
+
+Example:
+
+```text
+Device: 10.10.10.1
+
+Observation 1
+  Vendor: VMware
+  Role: Gateway
+
+Observation 2
+  Vendor: VMware
+  Role: Gateway
+
+Observation 3
+  Vendor: VMware
+  Role: Gateway
+```
+
+---
+
+## Service history
+
+Services are associated with devices and stored for historical analysis.
+
+Example:
+
+```text
+Device
+ └── 10.10.10.1
+      └── TCP/53
+           ├── domain
+           └── dnsmasq 2.83
+```
+
+---
+
+## Topology history
+
+Every monitoring cycle can create a topology snapshot.
+
+This enables investigation of how the network changed over time.
+
+```text
+Snapshot 1
+    │
+    ▼
+Snapshot 2
+    │
+    ▼
+Snapshot 3
+    │
+    ▼
+Snapshot 4
+```
+
+---
+
+# 🧮 Risk Scoring
+
+NetMap provides a lightweight security risk model.
+
+Risk is calculated from observable network characteristics.
+
+Potential factors include:
+
+* number of exposed services
+* suspicious network changes
+* detected anomalies
+* device state
+* service exposure
+
+The result is represented as:
+
+```text
+Risk Score: 0-100
+
+0 ─────────────────────────────── 100
+│             │          │        │
+LOW         MEDIUM      HIGH   CRITICAL
+```
+
+The scoring engine is intended for **security monitoring and prioritization**, not as a replacement for a full enterprise risk-management framework.
+
+---
+
+# 🧠 Anomaly Detection
+
+NetMap compares the current network state with previously observed state.
+
+Example:
+
+```text
+Previous State
+10.10.10.20
+    └── 22/tcp
+
+Current State
+10.10.10.20
+    ├── 22/tcp
+    └── 8080/tcp
+```
+
+The newly observed port can become a security-relevant change.
+
+Other examples:
+
+```text
+New Device
+    ↓
+Anomaly
+
+MAC Changed
+    ↓
+Anomaly
+
+OS Changed
+    ↓
+Anomaly
+
+New Service
+    ↓
+Anomaly
+```
+
+---
+
+# 🧪 Testing
+
+NetMap uses `pytest` for automated testing.
+
+Current validation:
+
+```text
+24 passed
+```
+
+Run the test suite:
+
+```bash
+python -m pytest -q
+```
+
+Verbose mode:
+
+```bash
+python -m pytest -v
+```
+
+Expected result:
+
+```text
+........................
+24 passed
+```
+
+Python compilation check:
+
+```bash
+python -m compileall -q netmap
+```
+
+---
+
+# 🧰 Technology Stack
+
+| Technology          | Purpose                                     |
+| ------------------- | ------------------------------------------- |
+| Python              | Core application                            |
+| Linux               | Runtime platform                            |
+| Nmap                | Network discovery, service and OS detection |
+| psutil              | Network interface information               |
+| Flask               | Dashboard and REST API                      |
+| SQLite              | Historical persistence                      |
+| Werkzeug            | Authentication/password hashing             |
+| Pytest              | Automated testing                           |
+| HTML/CSS/JavaScript | Dashboard UI                                |
+| JSON                | Data exchange/reporting                     |
+| CSV                 | Device reporting                            |
+
+---
+
+# 📁 Project Structure
 
 ```text
 NetMap/
@@ -209,155 +1250,120 @@ NetMap/
 ├── netmap/
 │   │
 │   ├── __init__.py
-│   │
 │   ├── cli.py
-│   │       └── Main network discovery CLI
 │   │
 │   ├── network.py
-│   │       └── Linux interface and IPv4 discovery
-│   │
 │   ├── scanner.py
-│   │       └── Nmap network/device discovery
-│   │
 │   ├── gateway.py
-│   │       └── Default gateway detection
-│   │
 │   ├── classifier.py
-│   │       └── Device role classification
 │   │
-│   ├── reporter.py
-│   │       └── JSON / CSV / topology exports
-│   │
-│   ├── topology.py
-│   │       └── Network topology engine
-│   │
-│   ├── topology_view.py
-│   │       └── Standalone HTML topology visualization
+│   ├── fingerprint.py
+│   ├── services.py
+│   ├── os_detection.py
 │   │
 │   ├── monitor.py
-│   │       └── Device change detection
-│   │
 │   ├── live.py
-│   │       └── Continuous monitoring and alert pipeline
-│   │
+│   ├── anomaly.py
+│   ├── risk.py
 │   ├── alerts.py
-│   │       └── Structured security alert generation
 │   │
+│   ├── database.py
+│   ├── history.py
+│   ├── analytics.py
+│   │
+│   ├── topology.py
+│   ├── topology_view.py
+│   │
+│   ├── reporter.py
+│   ├── security_report.py
+│   │
+│   ├── auth.py
 │   ├── dashboard.py
-│   │       └── Flask API and dashboard server
 │   │
 │   └── templates/
-│       └── dashboard.html
-│               └── NetMap web dashboard
+│       ├── dashboard.html
+│       └── login.html
 │
 ├── tests/
-│   ├── test_network.py
-│   ├── test_scanner.py
-│   ├── test_gateway.py
+│   ├── test_alerts.py
 │   ├── test_classifier.py
-│   ├── test_reporter.py
-│   ├── test_topology.py
-│   ├── test_topology_view.py
+│   ├── test_gateway.py
 │   ├── test_monitor.py
-│   └── test_alerts.py
+│   ├── test_network.py
+│   ├── test_reporter.py
+│   ├── test_scanner.py
+│   ├── test_topology.py
+│   └── test_topology_view.py
 │
 ├── reports/
-│       └── Runtime-generated reports and monitoring data
 │
 ├── screenshots/
 │   ├── dashboard.png
-│   ├── topology.png
 │   ├── live-monitor.png
-│   ├── security-alert.png
-│   └── network-scan.png
+│   ├── network-scan.png
+│   └── topology.png
 │
 ├── requirements.txt
 ├── pytest.ini
 ├── .gitignore
+├── README.md
 ├── CHANGELOG.md
-├── LICENSE
-└── README.md
+└── LICENSE
 ```
 
 ---
 
-# 🛠️ Technology Stack
-
-### Core
-
-* **Python 3.11+**
-* **Linux**
-* **Nmap**
-* **psutil**
-
-### Web Dashboard
-
-* **Flask**
-* **HTML5**
-* **CSS3**
-* **JavaScript**
-* **SVG**
-
-### Testing
-
-* **pytest**
-
-### Data & Reporting
-
-* **JSON**
-* **CSV**
-
----
-
-# 💻 Installation
-
-## Prerequisites
-
-Before installing NetMap, make sure you have:
-
-* Linux
-* Python 3.11 or newer
-* Nmap
-* Git
-* Python virtual environment support
-
----
+# ⚙️ Installation
 
 ## 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/NetMap.git
-```
-
-Move into the project:
-
-```bash
+git clone https://github.com/re-enter-sys/NetMap.git
 cd NetMap
 ```
 
+Replace the repository URL with your fork or repository URL if necessary.
+
 ---
 
-## 2. Verify Python
+## 2. Create a virtual environment
 
 ```bash
-python3 --version
+python3 -m venv .venv
 ```
 
-Example:
+Activate it:
+
+```bash
+source .venv/bin/activate
+```
+
+If your Linux environment requires system packages such as `psutil`, install them through the distribution package manager when appropriate.
+
+---
+
+## 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+Requirements include:
 
 ```text
-Python 3.11.x
+psutil
+Flask
+Werkzeug
+pytest
 ```
+
+Nmap must also be installed separately.
 
 ---
 
-## 3. Verify Nmap
+# 🔧 Nmap Installation
 
-```bash
-nmap --version
-```
-
-If Nmap is not installed on Kali/Debian/Ubuntu:
+On Debian/Kali-based systems:
 
 ```bash
 sudo apt update
@@ -372,187 +1378,46 @@ nmap --version
 
 ---
 
-## 4. Create a virtual environment
-
-```bash
-python3 -m venv .venv
-```
-
-Activate it:
-
-```bash
-source .venv/bin/activate
-```
-
-Your terminal should now show:
-
-```text
-(.venv)
-```
-
----
-
-## 5. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## 6. Verify the installation
-
-Compile the Python modules:
-
-```bash
-python -m py_compile netmap/*.py
-```
-
-Run the test suite:
-
-```bash
-python -m pytest -v
-```
-
-A successful installation should show all tests passing.
-
----
-
-# ▶️ Usage
+# ▶️ Running NetMap
 
 ## Network Discovery
 
-Start NetMap:
+Run the command-line discovery workflow:
 
 ```bash
 python -m netmap.cli
 ```
 
-The scanner performs the following workflow:
-
-```text
-1. Detect network interface
-2. Determine local IPv4 address
-3. Determine network CIDR
-4. Detect default gateway
-5. Discover active devices
-6. Collect MAC/vendor information
-7. Classify devices
-8. Build topology
-9. Generate reports
-10. Generate topology HTML
-```
-
 ---
 
-# 📡 Live Network Monitoring
+# 📡 Live Monitoring
 
-Start the continuous monitor:
+Start the continuous network monitor:
 
 ```bash
 python -m netmap.live
 ```
 
-Default scan interval:
+NetMap will:
 
-```text
-10 seconds
-```
-
-Example:
-
-```text
-============================================================
-                 NETMAP LIVE MONITOR
-============================================================
-
-Network : __.__.__.0/24
-Interval: 10 seconds
-
-[*] Starting initial scan...
-
-[+] Initial devices discovered: 3
-
-[*] Monitoring for changes...
-[*] Press Ctrl+C to stop.
-```
-
-Stop the monitor:
-
-```text
-Ctrl+C
-```
+1. identify the local interface
+2. determine the local network
+3. identify the gateway
+4. perform network discovery
+5. fingerprint devices
+6. discover services
+7. attempt OS detection
+8. compare network state
+9. detect anomalies
+10. calculate risk
+11. generate alerts
+12. store historical information
+13. update topology
+14. update dashboard data
 
 ---
 
-# 🚨 Security Alerting
-
-NetMap compares consecutive scans to detect changes in the network.
-
-### New device
-
-When a previously unseen device appears:
-
-```text
-[!] SECURITY ALERT:
-MEDIUM - New Network Device Detected
-```
-
-The alert contains:
-
-```json
-{
-    "type": "NETWORK_DEVICE_CHANGE",
-    "title": "New Network Device Detected",
-    "severity": "MEDIUM",
-    "message": "New device detected at __.__.__.__"
-}
-```
-
-### Removed device
-
-When a previously detected device disappears:
-
-```json
-{
-    "type": "NETWORK_DEVICE_REMOVED",
-    "title": "Network Device Removed",
-    "severity": "LOW"
-}
-```
-
-Alert history is stored locally and exposed through the dashboard API.
-
----
-
-# 💓 Monitor Heartbeat
-
-The live monitoring process periodically writes a heartbeat containing:
-
-```text
-Timestamp
-Network
-Active device count
-Monitor status
-```
-
-The dashboard uses this heartbeat to determine the monitor state:
-
-```text
-MONITORING
-MONITOR STALE
-MONITOR OFFLINE
-```
-
-This helps distinguish between:
-
-* A healthy monitoring process
-* A monitor that has stopped updating
-* A monitor that is no longer running
-
----
-
-# 📊 Dashboard
+# 🖥️ Dashboard
 
 Start the dashboard:
 
@@ -560,512 +1425,771 @@ Start the dashboard:
 python -m netmap.dashboard
 ```
 
-The Flask server runs on:
+The dashboard runs on:
 
 ```text
 http://127.0.0.1:5001
 ```
 
-Open the address in your browser.
+The dashboard requires authentication.
 
-The dashboard provides:
+Configure credentials before deployment:
 
-* Active device count
-* Gateway information
-* Local host information
-* Network information
-* Network topology
-* Security alerts
-* Monitoring events
-* Device inventory
-* Monitor health
-* Automatic refresh
+```bash
+export NETMAP_ADMIN_USER="admin"
+export NETMAP_ADMIN_PASSWORD="change-this-password"
+export NETMAP_SECRET_KEY="replace-with-a-random-secret"
+```
+
+Then start:
+
+```bash
+python -m netmap.dashboard
+```
+
+> Do not use weak or default credentials in a production environment.
 
 ---
 
-# 🔌 REST API
+# 🔑 Dashboard Authentication
 
-NetMap exposes a lightweight REST API through Flask.
-
-## Health Check
-
-```http
-GET /api/health
-```
-
-Example response:
-
-```json
-{
-    "service": "NetMap Dashboard API",
-    "status": "ok"
-}
-```
-
----
-
-## Network Status
-
-```http
-GET /api/status
-```
-
-The endpoint provides:
+The dashboard provides session-based authentication.
 
 ```text
-Network information
-Device inventory
-Topology
-Monitoring events
-Security alerts
-Monitor health
+Browser
+   │
+   ▼
+Login
+   │
+   ▼
+Credential Validation
+   │
+   ├── Failed ──► Login Error
+   │
+   └── Success
+          │
+          ▼
+       Session
+          │
+          ▼
+   Protected Dashboard
+          │
+          ▼
+     Protected APIs
 ```
 
-Example structure:
-
-```json
-{
-    "project": "NetMap",
-    "network": {},
-    "summary": {},
-    "devices": [],
-    "topology": {},
-    "events": [],
-    "alerts": [],
-    "monitor": {}
-}
-```
+The dashboard protects security-sensitive API endpoints from unauthenticated access.
 
 ---
 
-# 📁 Generated Runtime Data
+# 📄 Reports
 
-NetMap generates runtime information under the `reports/` directory.
+NetMap can generate several types of reports.
 
-```text
-reports/
-│
-├── netmap_report.json
-├── netmap_topology.json
-├── netmap_topology.html
-├── netmap_alerts.json
-├── netmap_events.log
-└── netmap_heartbeat.json
-```
-
-These files contain environment-specific runtime information and are intentionally excluded from Git using `.gitignore`.
-
----
-
-# 📄 Reporting
-
-NetMap supports multiple output formats.
-
-### JSON
-
-Network information and device inventory:
+## Network JSON
 
 ```text
 reports/netmap_report.json
 ```
 
-### CSV
-
-Device inventory export:
-
-```text
-IP
-Hostname
-MAC
-Vendor
-Status
-Role
-```
-
-### Topology JSON
+## Topology JSON
 
 ```text
 reports/netmap_topology.json
 ```
 
-### Topology HTML
+## Topology HTML
 
 ```text
 reports/netmap_topology.html
 ```
 
-### Security Alerts
+## Security JSON
 
 ```text
-reports/netmap_alerts.json
+reports/security_report.json
 ```
 
-### Monitoring Events
+## Security HTML
+
+```text
+reports/security_report.html
+```
+
+## Event Log
 
 ```text
 reports/netmap_events.log
 ```
 
----
-
-# 🧪 Testing
-
-Run the complete test suite:
-
-```bash
-python -m pytest -v
-```
-
-Tests cover:
-
-* Network interface discovery
-* IPv4 network detection
-* Nmap scanner parsing
-* Gateway detection
-* Device classification
-* JSON reporting
-* CSV reporting
-* Topology generation
-* Topology HTML generation
-* Device addition detection
-* Device removal detection
-* Security alert generation
-* Alert data validation
-
-Current project baseline:
+## Heartbeat
 
 ```text
-24 automated tests
+reports/netmap_heartbeat.json
 ```
 
----
-
-# 🔐 Security Design
-
-NetMap follows a defensive network-monitoring model:
-
-```text
-              Asset Discovery
-                     ↓
-              Network Visibility
-                     ↓
-                  Baseline
-                     ↓
-            Continuous Monitoring
-                     ↓
-              Change Detection
-                     ↓
-               Alert Creation
-                     ↓
-                Investigation
-```
-
-A new device is **not automatically considered malicious**.
-
-Instead, NetMap identifies the change and creates an alert that can be reviewed by an administrator or security analyst.
+Runtime files are excluded from Git where appropriate.
 
 ---
 
-# 🎯 Cybersecurity Concepts Demonstrated
+# 🧭 Network Topology
 
-NetMap demonstrates practical concepts relevant to entry-level SOC, security analyst, and network security roles.
+NetMap builds a gateway-centered logical topology.
 
-### Network Security
-
-* Network reconnaissance
-* Asset discovery
-* Network inventory
-* Gateway identification
-* MAC address discovery
-* Vendor identification
-* Network topology
-
-### Security Operations
-
-* Continuous monitoring
-* Baseline comparison
-* Change detection
-* Event logging
-* Security alerting
-* Alert severity
-* Monitoring health
-
-### Security Engineering
-
-* Python automation
-* REST API development
-* Dashboard development
-* Structured security data
-* Modular architecture
-* Automated testing
-
----
-
-# 🧩 MITRE ATT&CK Context
-
-NetMap's network visibility capabilities can support defensive investigation related to network discovery concepts.
-
-| Technique                                          | Context                                |
-| -------------------------------------------------- | -------------------------------------- |
-| **T1046 — Network Service Scanning**               | Network and service discovery context  |
-| **T1016 — System Network Configuration Discovery** | Local network configuration visibility |
-
-These mappings describe security concepts relevant to the project.
-
-NetMap does **not** claim comprehensive detection of these MITRE ATT&CK techniques.
-
----
-
-# 🔄 Detection Workflow
+Example:
 
 ```text
                     ┌──────────────┐
-                    │ Network Scan │
+                    │   Gateway    │
+                    │ 192.168.x.x  │
                     └──────┬───────┘
                            │
-                           ▼
-                    ┌──────────────┐
-                    │ Device List  │
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │   Baseline   │
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │  Next Scan   │
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │   Compare    │
-                    └──────┬───────┘
-                           │
-                  ┌────────┴────────┐
-                  │                 │
-                  ▼                 ▼
-            New Device       Device Removed
-                  │                 │
-                  └────────┬────────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │ Alert Engine │
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │ Alert History│
-                    └──────┬───────┘
-                           │
-                           ▼
-                    ┌──────────────┐
-                    │  Dashboard   │
-                    └──────────────┘
+             ┌─────────────┼─────────────┐
+             │             │             │
+             ▼             ▼             ▼
+       ┌──────────┐  ┌──────────┐  ┌──────────┐
+       │ Local    │  │ Device 1 │  │ Device 2 │
+       │ Host     │  │          │  │          │
+       └──────────┘  └──────────┘  └──────────┘
 ```
+
+The topology can be exported as standalone HTML.
 
 ---
 
-# 🧪 Example Environment
+# 🛡️ Security Considerations
 
-Example development environment:
+NetMap is intended for defensive monitoring and authorized security testing.
+
+## Authorized scope
+
+Only scan networks where you have permission.
+
+## Nmap privileges
+
+Some Nmap features, particularly OS fingerprinting, may require elevated privileges.
+
+## Dashboard credentials
+
+Never expose the dashboard using weak credentials.
+
+## Secret key
+
+Set a strong `NETMAP_SECRET_KEY` before deploying outside a local development environment.
+
+## Generated data
+
+Network information may contain sensitive infrastructure details.
+
+Do not commit:
+
+* database files
+* runtime logs
+* generated security reports
+* heartbeat state
+* private network inventories
+
+---
+
+# 🔒 Data Handling
+
+NetMap may collect:
+
+* private IP addresses
+* MAC addresses
+* hostnames
+* vendors
+* open ports
+* service information
+* operating system information
+* network topology
+* security events
+
+Treat generated reports as potentially sensitive.
+
+---
+
+# 🧪 Example Network
+
+The development and validation environment used for this project included a Linux/Kali virtual machine and a VMware virtual network.
+
+Example discovered network:
 
 ```text
-Operating System : Kali Linux
-Interface        : eth0
-Local IP         : __.__.__.__
-Network          : __.__.__.__/24
-Gateway          : __.__.__.__
-Scanner          : Nmap
-Dashboard        : Flask
-Testing          : pytest
+Network:
+10.10.10.0/24
+
+Local Host:
+10.10.10.10
+
+Gateway:
+10.10.10.1
 ```
 
 Example discovered devices:
 
 ```text
-__.__.__.__
-    └── Gateway
+10.10.10.10
+    security-monitor.local
+    Local Host
 
-__.__.__.__
-    └── Local Host
+10.10.10.1
+    _gateway
+    VMware
+    Gateway
 
-__.__.__.__
-    └── Device
+10.10.10.154
+    VMware
+    Device
 ```
+
+These addresses are examples from the development environment and should not be assumed to exist on another system.
 
 ---
 
-# 🗺️ Example Network Topology
+# 🔬 Example Security Scenario
+
+Consider a network where a new system appears unexpectedly.
+
+### Initial state
 
 ```text
-                       ┌──────────────────┐
-                       │     Gateway      │
-                       │ __.__.__.__   │
-                       └────────┬─────────┘
-                                │
-                  ┌─────────────┼─────────────┐
-                  │             │             │
-                  ▼             ▼             ▼
-          ┌────────────┐ ┌────────────┐ ┌────────────┐
-          │ Local Host │ │   Device   │ │   Device   │
-          │__.__.__ │ │__.__.__ │ │__.__.__ │
-          │   .__     │ │   .____     │ │   .xxx     │
-          └────────────┘ └────────────┘ └────────────┘
+Gateway
+ ├── Workstation
+ └── Server
+```
+
+### New scan
+
+```text
+Gateway
+ ├── Workstation
+ ├── Server
+ └── Unknown Device
+```
+
+NetMap detects:
+
+```text
+NEW_DEVICE
+```
+
+The device is then enriched:
+
+```text
+IP
+MAC
+Vendor
+Hostname
+Services
+OS
+Device Type
+Risk
+```
+
+If the device exposes unexpected services:
+
+```text
+Unknown Device
+      │
+      ├── TCP/22
+      ├── TCP/80
+      └── TCP/8080
+             │
+             ▼
+       Risk Assessment
+             │
+             ▼
+          Alert
+```
+
+The alert is persisted and becomes visible in the dashboard.
+
+An analyst can then acknowledge or resolve the alert after investigation.
+
+---
+
+# 🧑‍💻 Skills Demonstrated
+
+NetMap demonstrates practical experience across multiple cybersecurity and software engineering areas.
+
+## Cybersecurity
+
+* Network reconnaissance
+* Network visibility
+* Security monitoring
+* Alert generation
+* Alert triage
+* Anomaly detection
+* Risk assessment
+* Service exposure analysis
+* Security investigation
+* Defensive security automation
+
+## Networking
+
+* IPv4 networking
+* Subnet detection
+* Routing
+* Gateway identification
+* MAC addresses
+* ARP-related network visibility
+* TCP services
+* Network topology
+
+## Linux
+
+* Linux networking
+* Shell environment
+* Python execution
+* Nmap
+* Process/runtime management
+* Virtualized network environments
+* File permissions
+* Environment variables
+
+## Python
+
+* Modular architecture
+* Type hints
+* Exception handling
+* SQLite integration
+* Flask
+* JSON
+* CSV
+* subprocess execution
+* REST APIs
+* Automated testing
+
+## Security Operations
+
+* Alert lifecycle
+* Severity classification
+* Historical investigation
+* Risk scoring
+* Event monitoring
+* Device baselining
+* Security reporting
+* SOC dashboard concepts
+
+---
+
+# 📈 Version History
+
+## v2.0.0
+
+NetMap 2.0 transforms the project from a network discovery tool into a persistent network security monitoring platform.
+
+Major additions:
+
+* Device fingerprinting
+* Port and service discovery
+* OS detection
+* SQLite persistence
+* Historical device tracking
+* Historical topology
+* Anomaly detection
+* Risk scoring
+* Alert acknowledgement
+* Alert resolution
+* Alert filtering
+* Security analytics
+* Security reports
+* Authenticated dashboard
+* Protected REST APIs
+
+Validation:
+
+```text
+24 tests passed
+Python compilation successful
+Live monitoring validated
+SQLite persistence validated
+Dashboard validated
 ```
 
 ---
 
-# 🧭 Development Roadmap
+## v1.0.0
 
-## v1.0.0 — Current Release
+Initial stable release containing:
 
-* [x] Network interface discovery
-* [x] IPv4 network detection
-* [x] Nmap device discovery
-* [x] Hostname detection
-* [x] MAC/vendor detection
-* [x] Gateway detection
-* [x] Device classification
-* [x] JSON reporting
-* [x] CSV reporting
-* [x] Topology engine
-* [x] Interactive topology
-* [x] Live monitoring
-* [x] Device change detection
-* [x] Security alert engine
-* [x] Alert history
-* [x] Monitor heartbeat
-* [x] Flask REST API
-* [x] SOC-style dashboard
-* [x] Automated testing
-* [x] Project documentation
-
-## Future Releases
-
-* [ ] Advanced device fingerprinting
-* [ ] Port and service discovery
-* [ ] Operating system detection
-* [ ] Historical device database
-* [ ] Advanced anomaly detection
-* [ ] Network risk scoring
-* [ ] Alert acknowledgement
-* [ ] Alert filtering
-* [ ] Severity-based filtering
-* [ ] Historical topology
-* [ ] Dashboard analytics
-* [ ] Security report generation
-* [ ] Docker deployment
-* [ ] CI/CD integration
-* [ ] Dashboard authentication
+* network interface detection
+* Nmap discovery
+* gateway detection
+* device classification
+* topology generation
+* live monitoring
+* change detection
+* alert generation
+* Flask dashboard
+* JSON/CSV reporting
+* automated tests
 
 ---
 
-# ⚠️ Responsible Use
+# 🧭 Roadmap
 
-NetMap is intended for:
+NetMap 2.0 establishes the core monitoring and investigation platform.
 
-* Personal networks
-* Authorized enterprise networks
-* Cybersecurity laboratories
-* Educational environments
-* Authorized penetration testing
-* Defensive network monitoring
+Future improvements may include:
 
-Do **not** scan networks or systems without authorization.
+### Network Intelligence
 
-The author is not responsible for unauthorized use of this software.
+* improved device fingerprinting
+* expanded protocol support
+* improved OS detection
+* richer vendor intelligence
+* passive network observation
+
+### Detection
+
+* more advanced behavioral baselines
+* anomaly scoring
+* configurable detection rules
+* event correlation
+* detection tuning
+
+### Security
+
+* expanded MITRE ATT&CK mapping
+* improved risk models
+* investigation timelines
+* IOC support
+* security event correlation
+
+### Dashboard
+
+* advanced charts
+* interactive historical timelines
+* improved topology visualization
+* filtering and search
+* customizable dashboards
+
+### Deployment
+
+* Docker deployment
+* CI/CD hardening
+* production deployment documentation
+* configuration management
+* deployment health checks
+
+### Reporting
+
+* exportable investigation reports
+* scheduled reports
+* richer security summaries
+* analyst-focused reporting
+
+---
+
+# 🧱 Design Philosophy
+
+NetMap intentionally focuses on a clear security workflow rather than attempting to become a full enterprise SIEM.
+
+The architecture follows:
+
+```text
+Simple
+   ↓
+Modular
+   ↓
+Observable
+   ↓
+Testable
+   ↓
+Extensible
+```
+
+Each major capability is separated into its own module.
+
+This makes the project easier to:
+
+* test
+* understand
+* extend
+* troubleshoot
+* demonstrate during interviews
+
+---
+
+# 🧪 Development Validation
+
+The current project has been validated using:
+
+```bash
+python -m pytest -q
+```
+
+Result:
+
+```text
+........................
+24 passed
+```
+
+Python compilation:
+
+```bash
+python -m compileall -q netmap
+```
+
+No compilation errors were reported.
+
+---
+
+# 📋 Project Status
+
+| Component                | Status  |
+| ------------------------ | ------- |
+| Network Discovery        | ✅       |
+| Gateway Detection        | ✅       |
+| Device Classification    | ✅       |
+| Device Fingerprinting    | ✅       |
+| Service Discovery        | ✅       |
+| OS Detection             | ✅       |
+| Live Monitoring          | ✅       |
+| Change Detection         | ✅       |
+| Anomaly Detection        | ✅       |
+| Device Risk Scoring      | ✅       |
+| Network Risk Scoring     | ✅       |
+| Alert Generation         | ✅       |
+| Alert Persistence        | ✅       |
+| Alert Acknowledgement    | ✅       |
+| Alert Resolution         | ✅       |
+| Alert Filtering          | ✅       |
+| Historical Database      | ✅       |
+| Historical Device Data   | ✅       |
+| Historical Topology      | ✅       |
+| Dashboard Analytics      | ✅       |
+| Security Reports         | ✅       |
+| Dashboard Authentication | ✅       |
+| Protected APIs           | ✅       |
+| Automated Tests          | ✅       |
+| Docker Deployment        | Planned |
+| CI/CD Deployment         | Planned |
+| Advanced MITRE Mapping   | Planned |
+
+---
+
+# 🏆 Why This Project Matters
+
+NetMap was built to demonstrate how several individual cybersecurity concepts can be combined into a practical security monitoring workflow.
+
+Instead of stopping at:
+
+```text
+Scan → Display Results
+```
+
+NetMap 2.0 extends the workflow to:
+
+```text
+Scan
+ ↓
+Identify
+ ↓
+Enrich
+ ↓
+Persist
+ ↓
+Compare
+ ↓
+Detect
+ ↓
+Score
+ ↓
+Alert
+ ↓
+Investigate
+ ↓
+Acknowledge
+ ↓
+Resolve
+```
+
+This architecture reflects the type of workflow used when building security monitoring and SOC-oriented tooling.
+
+---
+
+# 📚 Learning Outcomes
+
+Building NetMap provided practical experience with:
+
+* Linux networking
+* Nmap automation
+* Python network programming
+* network topology modeling
+* service enumeration
+* OS fingerprinting
+* persistent security data
+* SQLite database design
+* event-driven monitoring
+* anomaly detection
+* security risk scoring
+* alert lifecycle management
+* Flask API development
+* dashboard authentication
+* security reporting
+* automated testing
+* Git/GitHub project management
+
+---
+
+# ⚠️ Limitations
+
+NetMap is a portfolio and learning project rather than a replacement for enterprise security products.
+
+Current limitations include:
+
+* OS detection depends on Nmap fingerprinting.
+* Some Nmap functionality may require elevated privileges.
+* Risk scoring is a lightweight heuristic model.
+* Anomaly detection is not equivalent to a production ML-based detection platform.
+* Network discovery performance depends on network size and scan configuration.
+* Dashboard authentication requires secure configuration for production use.
+* Docker deployment is not currently part of the stable release.
+* Advanced enterprise integrations are outside the current scope.
+
+---
+
+# 🔮 Future Vision
+
+The long-term goal is to evolve NetMap toward a more complete lightweight network security operations platform.
+
+Potential future architecture:
+
+```text
+                    NETWORK
+                       │
+             ┌─────────┴─────────┐
+             │                   │
+             ▼                   ▼
+       Active Discovery     Passive Monitoring
+             │                   │
+             └─────────┬─────────┘
+                       ▼
+                Device Intelligence
+                       │
+                       ▼
+                 Event Pipeline
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+      Detection       Risk       Correlation
+          │            │            │
+          └────────────┼────────────┘
+                       ▼
+                 Alert Engine
+                       │
+                       ▼
+                 SOC Dashboard
+                       │
+             ┌─────────┼─────────┐
+             ▼         ▼         ▼
+          Alerts     History    Reports
+```
 
 ---
 
 # 🤝 Contributing
 
-Contributions, suggestions, and improvements are welcome.
+Contributions, ideas, bug reports, and improvements are welcome.
 
-A typical contribution workflow:
+Suggested workflow:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/NetMap.git
+git clone <repository>
 cd NetMap
 
-git checkout -b feature/your-feature
+python3 -m venv .venv
+source .venv/bin/activate
 
-# Make your changes
+pip install -r requirements.txt
 
-python -m pytest -v
-
-git add .
-git commit -m "Add your feature"
-
-git push origin feature/your-feature
+python -m pytest -q
 ```
 
-Then open a pull request.
+Create a feature branch:
 
----
+```bash
+git checkout -b feature/my-feature
+```
 
-# 👨‍💻 Author
-
-## Ch Viswa
-
-Cybersecurity-focused Computer Science graduate interested in:
-
-* Security Operations
-* Network Security
-* Threat Detection
-* Vulnerability Assessment
-* Penetration Testing
-* Linux Security
-* Security Automation
+Make your changes, test them, and submit a pull request.
 
 ---
 
 # 📜 License
 
-NetMap is released under the **MIT License**.
+This project is licensed under the MIT License.
 
-See [`LICENSE`](LICENSE) for the complete license text.
-
----
-
-# 📋 Changelog
-
-See [`CHANGELOG.md`](CHANGELOG.md) for the project release history.
-
----
-
-# ⭐ Project Status
-
-**Version:** `1.0.0`
-
-**Status:** Portfolio Release
-
-NetMap is a practical Linux cybersecurity project demonstrating:
+See:
 
 ```text
-Network Discovery
-       +
-Topology Mapping
-       +
-Continuous Monitoring
-       +
-Change Detection
-       +
-Security Alerting
-       +
-REST API
-       +
-SOC Dashboard
-       +
-Automated Testing
+LICENSE
 ```
 
-If you find the project useful, consider giving it a ⭐ on GitHub.
+for the complete license text.
 
 ---
 
-<p align="center">
-  <strong>NetMap — Turning network visibility into actionable security monitoring.</strong>
-</p>
+# 👤 Author
+
+**Ch Viswa**
+
+Cybersecurity-focused Computer Science graduate interested in:
+
+* Security Operations
+* SOC Analysis
+* Network Security
+* Vulnerability Assessment
+* Penetration Testing
+* Linux Security
+* Security Automation
+* Threat Detection
+
+NetMap is part of a practical cybersecurity portfolio focused on building and documenting security tools rather than only studying theoretical concepts.
+
+---
+
+# ⭐ Project Highlights
+
+```text
+┌─────────────────────────────────────────────┐
+│                 NETMAP 2.0                  │
+├─────────────────────────────────────────────┤
+│                                             │
+│  🔎 Network Discovery                       │
+│  🧠 Device Intelligence                    │
+│  🔐 Service Discovery                      │
+│  🖥️ OS Fingerprinting                      │
+│  📡 Live Monitoring                        │
+│  🚨 Security Alerts                        │
+│  🧮 Risk Scoring                            │
+│  🧠 Anomaly Detection                       │
+│  🗄️ Historical Database                    │
+│  🗺️ Historical Topology                    │
+│  📊 Security Analytics                     │
+│  🖥️ SOC Dashboard                          │
+│  🔑 Dashboard Authentication               │
+│  📄 Security Reports                       │
+│  🔌 REST APIs                              │
+│  🧪 Automated Testing                      │
+│                                             │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+# ⭐ If You Find This Project Useful
+
+If NetMap is useful for learning or demonstrates something interesting to you, consider giving the repository a ⭐.
+
+The project is intended as an evolving cybersecurity portfolio project focused on **practical network visibility, monitoring, detection, investigation, and security automation**.
+
+---
+
+## NetMap 2.0
+
+**Discover. Identify. Monitor. Detect. Investigate. Respond.**

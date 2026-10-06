@@ -37,3 +37,19 @@ reports/netmap_topology.html
 *.tmp
 *.swp
 *.swo
+
+# Runtime database
+reports/*.db
+reports/*.sqlite
+reports/*.sqlite3
+
+# Generated security reports
+reports/security_report.json
+reports/security_report.html
+
+# Generated discovery output
+reports/discovery.txt
+reports/netmap_devices.csv
+
+# Local backups
+*.backup

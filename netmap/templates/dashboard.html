@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>NetMap — Live Network Monitor</title>
+    <title>NetMap SOC Dashboard</title>
 
     <style>
 
@@ -20,608 +17,731 @@
 
         body {
             margin: 0;
-            background: #0b1020;
-            color: #e5e7eb;
+            background: #020617;
+            color: #e2e8f0;
             font-family:
-                Arial,
-                Helvetica,
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
                 sans-serif;
         }
 
-        header {
-            padding: 22px 30px;
-            border-bottom: 1px solid #273449;
-            background: #111827;
+        button,
+        select,
+        input {
+            font: inherit;
         }
 
-        header h1 {
-            margin: 0;
-            font-size: 27px;
-        }
-
-        header p {
-            margin: 7px 0 0;
-            color: #9ca3af;
+        button {
+            cursor: pointer;
         }
 
         .container {
-            width: 100%;
-            max-width: 1450px;
+            width: min(1500px, 96%);
             margin: auto;
-            padding: 25px;
         }
 
-        /* STATUS */
+        header {
+            padding: 24px 0 18px;
+            border-bottom: 1px solid #1e293b;
+        }
 
-        .status-bar {
+        .header-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 20px;
-            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
-        .status {
-            display: inline-flex;
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            color: #f8fafc;
+        }
+
+        .subtitle {
+            margin-top: 5px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
             align-items: center;
-            gap: 9px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
         }
 
-        .status-dot {
-            width: 11px;
-            height: 11px;
-            border-radius: 50%;
-            background: #22c55e;
-            box-shadow: 0 0 10px #22c55e;
-        }
-
-        .status-dot.offline {
-            background: #ef4444;
-            box-shadow: 0 0 10px #ef4444;
-        }
-
-        #network-info {
-            color: #9ca3af;
-            font-family: monospace;
-            font-size: 13px;
-        }
-
-        /* CARDS */
-
-        .cards {
-            display: grid;
-            grid-template-columns:
-                repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            background: #111827;
-            border: 1px solid #273449;
-            border-radius: 10px;
-            padding: 20px;
-        }
-
-        .card-title {
-            color: #9ca3af;
+        .status-chip {
+            padding: 7px 12px;
+            border-radius: 999px;
             font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.7px;
+            font-weight: 700;
         }
 
-        .card-value {
-            margin-top: 9px;
-            font-size: 27px;
-            font-weight: bold;
-            word-break: break-word;
+        .live {
+            background: #14532d;
+            color: #bbf7d0;
         }
 
-        .card-subtitle {
-            margin-top: 7px;
-            color: #64748b;
-            font-size: 11px;
+        .offline {
+            background: #7f1d1d;
+            color: #fecaca;
         }
 
-        /* MAIN GRID */
+        .button {
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 8px 13px;
+            border-radius: 7px;
+        }
+
+        .button:hover {
+            background: #1e293b;
+        }
 
         .grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
+            gap: 16px;
         }
 
-        .panel {
-            background: #111827;
-            border: 1px solid #273449;
-            border-radius: 10px;
-            padding: 20px;
+        .metrics {
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(180px, 1fr)
+                );
+            margin: 20px 0;
         }
 
-        .panel h2 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-
-        /* TOPOLOGY */
-
-        #topology {
-            width: 100%;
-            height: 500px;
-            background: #080d18;
-            border-radius: 8px;
-            overflow: hidden;
+        .card {
+            background: #0f172a;
             border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 18px;
         }
 
-        #topology-svg {
-            width: 100%;
-            height: 100%;
+        .metric-label {
+            color: #94a3b8;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
         }
 
-        .topology-empty {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #64748b;
+        .metric-value {
+            margin-top: 8px;
+            font-size: 28px;
+            font-weight: 800;
+            color: #f8fafc;
         }
 
-        /* EVENTS */
+        .section {
+            margin: 20px 0;
+        }
 
-        .event-header {
+        .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
             margin-bottom: 12px;
         }
 
-        .event-header h2 {
+        .section-title {
             margin: 0;
+            font-size: 18px;
+            color: #f8fafc;
         }
 
-        #changeCounter {
-            padding: 6px 10px;
-            border-radius: 6px;
-            background: #1e293b;
-            color: #93c5fd;
-            font-size: 11px;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-
-        #lastEvent {
-            margin-bottom: 14px;
-            padding: 10px 12px;
-            border-radius: 6px;
-            background: #0b1220;
-            border-left: 4px solid #64748b;
-            color: #9ca3af;
-            font-family: monospace;
-            font-size: 11px;
-            word-break: break-word;
-        }
-
-        #lastEvent.new-event {
-            border-left-color: #22c55e;
-            color: #86efac;
-        }
-
-        #lastEvent.removed-event {
-            border-left-color: #ef4444;
-            color: #fca5a5;
-        }
-
-        .event-list {
-            max-height: 410px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-
-        .event {
-            padding: 10px;
-            margin-bottom: 8px;
-            background: #0b1220;
-            border-left: 3px solid #64748b;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 11px;
-            word-break: break-word;
-        }
-
-        .event.new-device {
-            border-left-color: #22c55e;
-        }
-
-        .event.device-removed {
-            border-left-color: #ef4444;
-        }
-
-        .event.monitor {
-            border-left-color: #3b82f6;
-        }
-
-        /* DEVICES */
-
-        .device-panel {
-            margin-top: 20px;
-        }
-
-        .device-table-wrapper {
-            overflow-x: auto;
-        }
-
-        .device-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 800px;
-        }
-
-        .device-table th,
-        .device-table td {
-            padding: 11px;
-            text-align: left;
-            border-bottom: 1px solid #273449;
+        .section-subtitle {
+            color: #64748b;
             font-size: 12px;
         }
 
-        .device-table th {
-            color: #9ca3af;
-            font-size: 11px;
-            text-transform: uppercase;
+        /*
+         * LIVE TOPOLOGY
+         */
+
+        .topology-card {
+            padding: 0;
+            overflow: hidden;
         }
 
-        .device-table tr:hover {
+        .topology-toolbar {
+            padding: 14px 16px;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .topology-stats {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .topology-stat {
+            background: #111827;
+            border: 1px solid #334155;
+            color: #cbd5e1;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .topology-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            background: #0b1020;
+        }
+
+        #liveTopology {
+            display: block;
+            width: 1200px;
+            min-width: 1200px;
+            height: 650px;
+        }
+
+        .topology-bottom {
+            display: grid;
+            grid-template-columns:
+                minmax(0, 1fr)
+                320px;
+            border-top: 1px solid #1e293b;
+        }
+
+        .legend {
+            padding: 14px 16px;
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #cbd5e1;
+            font-size: 12px;
+        }
+
+        .legend-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            border: 1px solid #64748b;
+        }
+
+        .legend-gateway {
+            background: #2563eb;
+        }
+
+        .legend-local {
+            background: #16a34a;
+        }
+
+        .legend-normal {
+            background: #475569;
+        }
+
+        .legend-medium {
+            background: #d97706;
+        }
+
+        .legend-high {
+            background: #dc2626;
+        }
+
+        .legend-alert {
+            border: 2px solid #ef4444;
+            background: transparent;
+        }
+
+        .topology-details {
+            border-left: 1px solid #1e293b;
+            padding: 16px;
+            min-height: 130px;
+        }
+
+        .details-title {
+            font-size: 13px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 10px;
+        }
+
+        .details-empty {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 7px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 12px;
+        }
+
+        .detail-key {
+            color: #64748b;
+        }
+
+        .detail-value {
+            color: #e2e8f0;
+            text-align: right;
+            word-break: break-word;
+        }
+
+        .risk-low {
+            color: #86efac;
+        }
+
+        .risk-medium {
+            color: #fbbf24;
+        }
+
+        .risk-high {
+            color: #f87171;
+        }
+
+        .risk-critical {
+            color: #fecaca;
+            font-weight: 800;
+        }
+
+        /*
+         * TABLES
+         */
+
+        .table-card {
+            overflow-x: auto;
+            padding: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 11px 14px;
+            border-bottom: 1px solid #1e293b;
+            text-align: left;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        th {
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: .05em;
             background: #0b1220;
         }
 
-        .role {
-            font-weight: bold;
-        }
-
-        .role-gateway {
-            color: #60a5fa;
-        }
-
-        .role-local {
-            color: #4ade80;
-        }
-
-        .role-device {
+        td {
             color: #cbd5e1;
         }
 
-        .status-up {
-            color: #4ade80;
-            font-weight: bold;
+        tr:hover td {
+            background: #111827;
         }
 
-        .status-down {
+        .severity {
+            font-weight: 700;
+        }
+
+        .severity-CRITICAL {
+            color: #fca5a5;
+        }
+
+        .severity-HIGH {
             color: #f87171;
-            font-weight: bold;
         }
 
-        /* FOOTER */
+        .severity-MEDIUM {
+            color: #fbbf24;
+        }
 
-        .footer {
-            margin-top: 20px;
+        .severity-LOW {
+            color: #86efac;
+        }
+
+        .status-NEW {
+            color: #fca5a5;
+        }
+
+        .status-ACKNOWLEDGED {
+            color: #fbbf24;
+        }
+
+        .status-RESOLVED {
+            color: #86efac;
+        }
+
+        /*
+         * FILTERS
+         */
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        select,
+        input {
+            background: #020617;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            border-radius: 6px;
+            padding: 7px 9px;
+        }
+
+        /*
+         * EMPTY / ERROR
+         */
+
+        .empty {
+            color: #64748b;
+            padding: 20px;
             text-align: center;
-            color: #6b7280;
-            font-size: 11px;
+            font-size: 13px;
         }
 
-        /* RESPONSIVE */
+        .error {
+            color: #fca5a5;
+        }
+
+        /*
+         * RESPONSIVE
+         */
 
         @media (max-width: 900px) {
 
-            .grid {
+            .topology-bottom {
                 grid-template-columns: 1fr;
             }
 
-            #topology {
-                height: 420px;
-            }
-
-        }
-
-        @media (max-width: 600px) {
-
-            header {
-                padding: 18px;
-            }
-
-            header h1 {
-                font-size: 22px;
-            }
-
-            .container {
-                padding: 15px;
-            }
-
-            .card-value {
-                font-size: 23px;
-            }
-
-            #topology {
-                height: 350px;
+            .topology-details {
+                border-left: 0;
+                border-top: 1px solid #1e293b;
             }
 
         }
 
     </style>
-
 </head>
-
 
 <body>
 
-
-<header>
-
-    <h1>NetMap — Live Network Monitor</h1>
-
-    <p>
-        Network discovery, topology and real-time device monitoring
-    </p>
-
-</header>
-
-
 <div class="container">
 
+    <header>
 
-    <!-- STATUS -->
+        <div class="header-row">
 
-    <div class="status-bar">
+            <div>
+                <h1>NetMap SOC Dashboard</h1>
 
-        <div class="status">
-
-            <span
-                id="status-dot"
-                class="status-dot"
-            ></span>
-
-            <span id="monitor-status">
-                CHECKING MONITORING...
-            </span>
-
-        </div>
-
-
-        <div id="network-info">
-            Loading network...
-        </div>
-
-    </div>
-
-
-    <!-- SUMMARY CARDS -->
-
-    <div class="cards">
-
-
-        <div class="card">
-
-            <div class="card-title">
-                Active Devices
+                <div class="subtitle">
+                    Live network discovery, topology,
+                    device intelligence and security monitoring
+                </div>
             </div>
 
-            <div
-                class="card-value"
-                id="device-count"
-            >
-                -
-            </div>
+            <div class="header-actions">
 
-            <div class="card-subtitle">
-                Currently discovered
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="card-title">
-                Gateway
-            </div>
-
-            <div
-                class="card-value"
-                id="gateway"
-            >
-                -
-            </div>
-
-            <div class="card-subtitle">
-                Default route
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="card-title">
-                Local Host
-            </div>
-
-            <div
-                class="card-value"
-                id="local-host"
-            >
-                -
-            </div>
-
-            <div class="card-subtitle">
-                NetMap scanner
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="card-title">
-                Topology
-            </div>
-
-            <div
-                class="card-value"
-                id="topology-count"
-            >
-                -
-            </div>
-
-            <div class="card-subtitle">
-                Nodes and connections
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="card-title">
-                Changes
-            </div>
-
-            <div
-                class="card-value"
-                id="change-count"
-            >
-                0
-            </div>
-
-            <div class="card-subtitle">
-                Device events
-            </div>
-
-        </div>
-
-
-        <div class="card">
-
-            <div class="card-title">
-                Last Update
-            </div>
-
-            <div
-                class="card-value"
-                id="last-update"
-            >
-                -
-            </div>
-
-            <div class="card-subtitle"
-                 id="monitor-age"
-            >
-                Checking monitor...
-            </div>
-
-        </div>
-
-
-    </div>
-
-
-    <!-- TOPOLOGY + EVENTS -->
-
-    <div class="grid">
-
-
-        <!-- TOPOLOGY -->
-
-        <div class="panel">
-
-            <h2>
-                Network Topology
-            </h2>
-
-            <div id="topology">
-
-                <svg id="topology-svg"></svg>
-
-            </div>
-
-        </div>
-
-
-        <!-- EVENTS -->
-
-        <div class="panel">
-
-            <div class="event-header">
-
-                <h2>
-                    Monitoring Events
-                </h2>
-
-                <span id="changeCounter">
-                    0 changes
+                <span
+                    id="topologyLiveStatus"
+                    class="status-chip live"
+                >
+                    ● LIVE
                 </span>
 
+                <button
+                    class="button"
+                    onclick="window.location.href='/logout'"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- METRICS -->
+
+    <section class="section">
+
+        <div class="grid metrics">
+
+            <div class="card">
+                <div class="metric-label">
+                    Devices
+                </div>
+
+                <div
+                    class="metric-value"
+                    id="metricDevices"
+                >
+                    0
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="metric-label">
+                    Services
+                </div>
+
+                <div
+                    class="metric-value"
+                    id="metricServices"
+                >
+                    0
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="metric-label">
+                    Open Alerts
+                </div>
+
+                <div
+                    class="metric-value"
+                    id="metricAlerts"
+                >
+                    0
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="metric-label">
+                    Network Risk
+                </div>
+
+                <div
+                    class="metric-value"
+                    id="metricRisk"
+                >
+                    0
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- LIVE NETWORK TOPOLOGY -->
+
+    <section
+        class="section"
+        id="liveTopologySection"
+    >
+
+        <div class="section-header">
+
+            <div>
+                <h2 class="section-title">
+                    Live Network Topology
+                </h2>
+
+                <div class="section-subtitle">
+                    Gateway-centered network security map
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card topology-card">
+
+            <div class="topology-toolbar">
+
+                <div class="topology-stats">
+
+                    <span
+                        class="topology-stat"
+                        id="topologyNodeCount"
+                    >
+                        Nodes: 0
+                    </span>
+
+                    <span
+                        class="topology-stat"
+                        id="topologyEdgeCount"
+                    >
+                        Links: 0
+                    </span>
+
+                    <span
+                        class="topology-stat"
+                        id="topologyLastUpdate"
+                    >
+                        Last update: --
+                    </span>
+
+                </div>
+
             </div>
 
 
-            <div id="lastEvent">
-                No events detected yet.
+            <div class="topology-wrapper">
+
+                <svg
+                    id="liveTopology"
+                    viewBox="0 0 1200 650"
+                    preserveAspectRatio="xMidYMid meet"
+                    aria-label="Live network topology"
+                ></svg>
+
             </div>
 
 
-            <div
-                class="event-list"
-                id="events"
-            >
-                Loading events...
+            <div class="topology-bottom">
+
+                <div class="legend">
+
+                    <div class="legend-item">
+                        <span class="legend-dot legend-gateway"></span>
+                        Gateway
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-dot legend-local"></span>
+                        Local Host
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-dot legend-normal"></span>
+                        Normal
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-dot legend-medium"></span>
+                        Medium Risk
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-dot legend-high"></span>
+                        High/Critical
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-dot legend-alert"></span>
+                        Active Alert
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="topology-details"
+                    id="topologyDeviceDetails"
+                >
+
+                    <div class="details-title">
+                        Device Investigation
+                    </div>
+
+                    <div class="details-empty">
+                        Click a topology node to inspect it.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ALERTS -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <div>
+                <h2 class="section-title">
+                    Security Alerts
+                </h2>
+            </div>
+
+            <div class="filters">
+
+                <select id="alertSeverityFilter">
+                    <option value="">All Severity</option>
+                    <option value="CRITICAL">Critical</option>
+                    <option value="HIGH">High</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="LOW">Low</option>
+                </select>
+
+                <select id="alertStatusFilter">
+                    <option value="">All Status</option>
+                    <option value="NEW">New</option>
+                    <option value="ACKNOWLEDGED">
+                        Acknowledged
+                    </option>
+                    <option value="RESOLVED">
+                        Resolved
+                    </option>
+                </select>
+
             </div>
 
         </div>
 
 
-    </div>
+        <div class="card table-card">
 
-
-    <!-- DEVICES -->
-
-    <div class="panel device-panel">
-
-        <h2>
-            Discovered Devices
-        </h2>
-
-
-        <div class="device-table-wrapper">
-
-            <table class="device-table">
+            <table>
 
                 <thead>
-
                     <tr>
-
+                        <th>ID</th>
+                        <th>Severity</th>
+                        <th>Type</th>
                         <th>IP</th>
-
-                        <th>Hostname</th>
-
-                        <th>MAC</th>
-
-                        <th>Vendor</th>
-
-                        <th>Role</th>
-
+                        <th>Message</th>
                         <th>Status</th>
-
+                        <th>Timestamp</th>
+                        <th>Action</th>
                     </tr>
-
                 </thead>
 
+                <tbody id="alerts">
 
-                <tbody id="device-table-body">
+                    <tr>
+                        <td
+                            colspan="8"
+                            class="empty"
+                        >
+                            Loading alerts...
+                        </td>
+                    </tr>
 
                 </tbody>
 
@@ -629,644 +749,466 @@
 
         </div>
 
-    </div>
+    </section>
 
 
-    <div class="footer">
+    <!-- DEVICES -->
 
-        NetMap • Live Network Monitoring
+    <section class="section">
 
-    </div>
+        <div class="section-header">
 
+            <div>
+                <h2 class="section-title">
+                    Device Inventory
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="card table-card">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>IP</th>
+                        <th>Hostname</th>
+                        <th>MAC</th>
+                        <th>Vendor</th>
+                        <th>Role</th>
+                        <th>OS</th>
+                        <th>Risk</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="devices">
+
+                    <tr>
+                        <td
+                            colspan="8"
+                            class="empty"
+                        >
+                            Loading devices...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- SERVICES -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <div>
+                <h2 class="section-title">
+                    Discovered Services
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="card table-card">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>IP</th>
+                        <th>Port</th>
+                        <th>Protocol</th>
+                        <th>Service</th>
+                        <th>Product</th>
+                        <th>Version</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="services">
+
+                    <tr>
+                        <td
+                            colspan="6"
+                            class="empty"
+                        >
+                            Loading services...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- EVENTS -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <div>
+                <h2 class="section-title">
+                    Security Events
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="card table-card">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>IP</th>
+                        <th>Message</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="events">
+
+                    <tr>
+                        <td
+                            colspan="5"
+                            class="empty"
+                        >
+                            Loading events...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- HISTORICAL TOPOLOGY -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <div>
+                <h2 class="section-title">
+                    Historical Topology
+                </h2>
+
+                <div class="section-subtitle">
+                    Previously recorded network states
+                </div>
+            </div>
+
+        </div>
+
+
+        <div
+            class="card table-card"
+            id="historicalTopology"
+        >
+
+            <div class="empty">
+                Loading topology history...
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ANALYTICS -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <div>
+                <h2 class="section-title">
+                    Network Analytics
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="grid metrics">
+
+            <div class="card">
+
+                <div class="metric-label">
+                    Total Events
+                </div>
+
+                <div
+                    class="metric-value"
+                    id="analyticsEvents"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="metric-label">
+                    New Devices
+                </div>
+
+                <div
+                    class="metric-value"
+                    id="analyticsNewDevices"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="metric-label">
+                    Open Alerts
+                </div>
+
+                <div
+                    class="metric-value"
+                    id="analyticsOpenAlerts"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="card">
+
+                <div class="metric-label">
+                    Resolved Alerts
+                </div>
+
+                <div
+                    class="metric-value"
+                    id="analyticsResolvedAlerts"
+                >
+                    0
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- SECURITY REPORT -->
+
+    <section class="section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2 class="section-title">
+                    Security Report
+                </h2>
+
+                <div class="section-subtitle">
+                    Generate the latest network security report
+                </div>
+
+            </div>
+
+            <button
+                class="button"
+                id="generateReport"
+            >
+                Generate Report
+            </button>
+
+        </div>
+
+
+        <div
+            class="card"
+            id="reportOutput"
+        >
+
+            <div class="empty">
+                No report generated yet.
+            </div>
+
+        </div>
+
+    </section>
 
 </div>
 
 
 <script>
 
-
-const API_URL = "/api/status";
-
-
-let previousDeviceCount = null;
+"use strict";
 
 
-async function loadDashboard() {
-
-    try {
-
-        const response =
-            await fetch(API_URL, {
-                cache: "no-store"
-            });
+let currentTopology = null;
 
 
-        if (!response.ok) {
+/*
+ * Utility
+ */
 
-            throw new Error(
-                "API request failed"
-            );
+function escapeHtml(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+/*
+ * API helper
+ */
+
+async function apiFetch(
+    url,
+    options = {}
+) {
+
+    const response =
+        await fetch(
+            url,
+            {
+                cache: "no-store",
+                ...options
+            }
+        );
+
+    if (!response.ok) {
+
+        if (
+            response.status === 401
+        ) {
+
+            window.location.href =
+                "/login";
 
         }
 
-
-        const data =
-            await response.json();
-
-
-        updateDashboard(data);
-
-
-
-    } catch (error) {
-
-        console.error(
-            "Dashboard error:",
-            error
+        throw new Error(
+            "HTTP " +
+            response.status
         );
-
-
-        updateMonitorStatus({
-            status: "offline"
-        });
-
     }
 
+    return response.json();
 }
 
 
-/* MONITOR STATUS */
-
-function updateMonitorStatus(monitor) {
-
-    const dot =
-        document.getElementById(
-            "status-dot"
-        );
-
-    const status =
-        document.getElementById(
-            "monitor-status"
-        );
-
-    const ageElement =
-        document.getElementById(
-            "monitor-age"
-        );
-
-
-    const monitorStatus =
-        monitor?.status || "offline";
-
-
-    dot.classList.remove(
-        "offline"
-    );
-
-
-    if (
-        monitorStatus ===
-        "running"
-    ) {
-
-        status.textContent =
-            "MONITORING";
-
-        ageElement.textContent =
-            monitor.age_seconds !== null
-                ? `Monitor heartbeat ${monitor.age_seconds}s ago`
-                : "Monitor active";
-
-    } else if (
-        monitorStatus ===
-        "stale"
-    ) {
-
-        dot.classList.add(
-            "offline"
-        );
-
-        status.textContent =
-            "MONITOR STALE";
-
-        ageElement.textContent =
-            monitor.age_seconds !== null
-                ? `Last heartbeat ${monitor.age_seconds}s ago`
-                : "Heartbeat is stale";
-
-    } else {
-
-        dot.classList.add(
-            "offline"
-        );
-
-        status.textContent =
-            "MONITOR OFFLINE";
-
-        ageElement.textContent =
-            "Live monitor is not running";
-
-    }
-
-}
-
-
-/* MAIN DASHBOARD */
-
-
-function updateDashboard(data) {
-
-    const network =
-        data.network || {};
-
-
-    const summary =
-        data.summary || {};
-
-
-    const devices =
-        data.devices || [];
-
-
-    const topology =
-        data.topology || {};
-
-
-    const events =
-        data.events || [];
-       
-        
-    const monitor =
-        data.monitor || {};
-
-
-    const lastEvent =
-        data.last_event || null;
-
-
-    /* DEVICE COUNT */
-
-
-    document.getElementById(
-        "device-count"
-    ).textContent =
-        summary.active_devices ??
-        devices.length;
-
-
-    /* GATEWAY */
-
-
-    document.getElementById(
-        "gateway"
-    ).textContent =
-        network.gateway ||
-        "N/A";
-
-
-    /* LOCAL HOST */
-
-
-    const localDevice =
-        devices.find(
-            device =>
-                device.role === "Local Host"
-        );
-
-
-    document.getElementById(
-        "local-host"
-    ).textContent =
-        localDevice
-            ? localDevice.ip
-            : network.ip || "N/A";
-
-
-    /* TOPOLOGY */
-
-
-    const nodeCount =
-        topology.nodes?.length || 0;
-
-
-    const edgeCount =
-        topology.edges?.length || 0;
-
-
-    document.getElementById(
-        "topology-count"
-    ).textContent =
-        `${nodeCount} / ${edgeCount}`;
-
-
-    /* NETWORK */
-
-
-    document.getElementById(
-        "network-info"
-    ).textContent =
-        `${network.interface || "?"}`
-        + " • "
-        + `${network.network || "Unknown network"}`;
-
-
-    /* CHANGES */
-
-
-    const changeEvents =
-        events.filter(
-            event =>
-                event.includes(
-                    "NEW_DEVICE"
-                )
-                ||
-                event.includes(
-                    "DEVICE_REMOVED"
-                )
-        );
-
-
-    document.getElementById(
-        "change-count"
-    ).textContent =
-        changeEvents.length;
-
-
-    document.getElementById(
-        "changeCounter"
-    ).textContent =
-        `${changeEvents.length} changes`;
-
-
-    /* LAST UPDATE */
-
-
-    document.getElementById(
-        "last-update"
-    ).textContent =
-        new Date().toLocaleTimeString();
-
-
-    /* COMPONENTS */
-
-
-    updateLastEvent(
-        lastEvent
-    );
-    
-    
-    updateMonitorStatus(
-        monitor
-    );
-
-
-    updateEvents(
-        events
-    );
-
-
-    updateDevices(
-        devices
-    );
-
-
-    drawTopology(
-        topology
-    );
-
-
-    previousDeviceCount =
-        devices.length;
-
-}
-
-
-/* LAST EVENT */
-
-
-function updateLastEvent(event) {
+/*
+ * Topology SVG helper
+ */
+
+function createTopologySvgElement(
+    tag,
+    attributes = {}
+) {
 
     const element =
-        document.getElementById(
-            "lastEvent"
+        document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            tag
         );
 
+    Object.entries(attributes)
+        .forEach(
+            ([key, value]) => {
 
-    element.className =
-        "last-event";
-
-
-    if (!event) {
-
-        element.textContent =
-            "No events detected yet.";
-
-        return;
-
-    }
-
-
-    element.textContent =
-        event;
-
-
-    if (
-        event.includes(
-            "NEW_DEVICE"
-        )
-    ) {
-
-        element.classList.add(
-            "new-event"
-        );
-
-    }
-
-
-    if (
-        event.includes(
-            "DEVICE_REMOVED"
-        )
-    ) {
-
-        element.classList.add(
-            "removed-event"
-        );
-
-    }
-
-}
-
-
-/* EVENTS */
-
-
-function updateEvents(events) {
-
-    const container =
-        document.getElementById(
-            "events"
-        );
-
-
-    if (!events.length) {
-
-        container.innerHTML =
-            `
-            <div class="event">
-                No events recorded.
-            </div>
-            `;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        events
-            .slice()
-            .reverse()
-            .map(event => {
-
-                let eventClass =
-                    "event";
-
-
-                if (
-                    event.includes(
-                        "NEW_DEVICE"
-                    )
-                ) {
-
-                    eventClass +=
-                        " new-device";
-
-                } else if (
-                    event.includes(
-                        "DEVICE_REMOVED"
-                    )
-                ) {
-
-                    eventClass +=
-                        " device-removed";
-
-                } else if (
-                    event.includes(
-                        "MONITOR_"
-                    )
-                ) {
-
-                    eventClass +=
-                        " monitor";
-
-                }
-
-
-                return `
-                    <div class="${eventClass}">
-                        ${escapeHtml(event)}
-                    </div>
-                `;
-
-            })
-            .join("");
-
-}
-
-
-/* DEVICES */
-
-
-function updateDevices(devices) {
-
-    const body =
-        document.getElementById(
-            "device-table-body"
-        );
-
-
-    if (!devices.length) {
-
-        body.innerHTML =
-            `
-            <tr>
-                <td colspan="6">
-                    No devices discovered.
-                </td>
-            </tr>
-            `;
-
-        return;
-
-    }
-
-
-    body.innerHTML =
-        devices.map(device => {
-
-
-            let roleClass =
-                "role-device";
-
-
-            if (
-                device.role ===
-                "Gateway"
-            ) {
-
-                roleClass =
-                    "role-gateway";
-
-            } else if (
-                device.role ===
-                "Local Host"
-            ) {
-
-                roleClass =
-                    "role-local";
+                element.setAttribute(
+                    key,
+                    value
+                );
 
             }
+        );
 
-
-            const statusClass =
-                device.status === "up"
-                    ? "status-up"
-                    : "status-down";
-
-
-            return `
-
-                <tr>
-
-                    <td>
-                        ${escapeHtml(
-                            device.ip || "-"
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            device.hostname ||
-                            "Unknown"
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            device.mac ||
-                            "Unknown"
-                        )}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            device.vendor ||
-                            "Unknown"
-                        )}
-                    </td>
-
-                    <td
-                        class="role ${roleClass}"
-                    >
-                        ${escapeHtml(
-                            device.role ||
-                            "Device"
-                        )}
-                    </td>
-
-                    <td
-                        class="${statusClass}"
-                    >
-                        ${escapeHtml(
-                            device.status ||
-                            "Unknown"
-                        )}
-                    </td>
-
-                </tr>
-
-            `;
-
-        })
-        .join("");
-
+    return element;
 }
 
 
-/* TOPOLOGY */
+/*
+ * Calculate topology positions.
+ *
+ * Gateway is central.
+ * Local host and devices surround it.
+ */
 
-
-function drawTopology(topology) {
-
-    const svg =
-        document.getElementById(
-            "topology-svg"
-        );
-
-
-    svg.innerHTML = "";
-
-
-    const nodes =
-        topology.nodes || [];
-
-
-    const edges =
-        topology.edges || [];
-
-
-    if (!nodes.length) {
-
-        svg.innerHTML =
-            `
-            <text
-                x="50%"
-                y="50%"
-                text-anchor="middle"
-                fill="#64748b"
-            >
-                No topology data available
-            </text>
-            `;
-
-        return;
-
-    }
-
-
-    const width = 900;
-
-    const height = 500;
-
-
-    svg.setAttribute(
-        "viewBox",
-        `0 0 ${width} ${height}`
-    );
-
+function calculateTopologyPositions(
+    nodes
+) {
 
     const positions = {};
 
-
-    const centerX =
-        width / 2;
-
-
-    const centerY =
-        height / 2;
-
-
-    /* GATEWAY */
-
+    if (!nodes.length) {
+        return positions;
+    }
 
     const gateway =
         nodes.find(
             node =>
-                node.role ===
-                "Gateway"
+                node.role === "Gateway"
         );
 
+    const local =
+        nodes.find(
+            node =>
+                node.role === "Local Host"
+        );
+
+    const devices =
+        nodes.filter(
+            node =>
+                node !== gateway &&
+                node !== local
+        );
+
+    const centerX = 600;
+    const centerY = 325;
 
     if (gateway) {
 
@@ -1277,42 +1219,40 @@ function drawTopology(topology) {
 
     }
 
+    if (local) {
 
-    /* OTHER NODES */
+        positions[local.id] = {
+            x: centerX,
+            y: centerY + 155
+        };
 
+    }
 
-    const remaining =
-        nodes.filter(
-            node =>
-                node.id !==
-                gateway?.id
-        );
+    const radius =
+        devices.length <= 4
+            ? 190
+            : Math.min(
+                270,
+                150 +
+                devices.length * 12
+            );
 
-
-    remaining.forEach(
-        (node, index) => {
-
+    devices.forEach(
+        (device, index) => {
 
             const angle =
                 (
                     index /
                     Math.max(
-                        remaining.length,
+                        devices.length,
                         1
                     )
-                )
-                * Math.PI
-                * 2;
+                ) *
+                Math.PI *
+                2 -
+                Math.PI / 2;
 
-
-            const radius =
-                remaining.length === 1
-                    ? 0
-                    : 170;
-
-
-            positions[node.id] = {
-
+            positions[device.id] = {
                 x:
                     centerX +
                     Math.cos(angle) *
@@ -1322,322 +1262,2183 @@ function drawTopology(topology) {
                     centerY +
                     Math.sin(angle) *
                     radius
-
             };
 
         }
     );
 
-
-    /* EDGES */
-
-
-    edges.forEach(edge => {
-
-        const source =
-            positions[
-                edge.source
-            ];
+    return positions;
+}
 
 
-        const target =
-            positions[
-                edge.target
-            ];
+/*
+ * Node colors
+ */
 
+function topologyNodeColor(
+    node
+) {
+
+    if (
+        node.alert === true ||
+        node.has_alert === true ||
+        node.status === "ALERT"
+    ) {
+
+        return "#dc2626";
+
+    }
+
+    if (
+        node.role === "Gateway"
+    ) {
+
+        return "#2563eb";
+
+    }
+
+    if (
+        node.role === "Local Host"
+    ) {
+
+        return "#16a34a";
+
+    }
+
+    const score =
+        Number(
+            node.risk_score ??
+            node.risk ??
+            0
+        );
+
+    if (score >= 90) {
+        return "#991b1b";
+    }
+
+    if (score >= 70) {
+        return "#dc2626";
+    }
+
+    if (score >= 40) {
+        return "#d97706";
+    }
+
+    return "#475569";
+}
+
+
+/*
+ * Node labels
+ */
+
+function topologyNodeLabel(
+    node
+) {
+
+    return (
+        node.hostname ||
+        node.label ||
+        node.ip ||
+        "Unknown"
+    );
+}
+
+
+/*
+ * Topology details
+ */
+
+async function showTopologyDetails(
+    node
+) {
+
+    const panel =
+        document.getElementById(
+            "topologyDeviceDetails"
+        );
+
+    if (!panel) {
+        return;
+    }
+
+    const score =
+        Number(
+            node.risk_score ??
+            node.risk ??
+            0
+        );
+
+    const riskLevel =
+        String(
+            node.risk_level ||
+            (
+                score >= 90
+                    ? "CRITICAL"
+                    : score >= 70
+                        ? "HIGH"
+                        : score >= 40
+                            ? "MEDIUM"
+                            : "LOW"
+            )
+        ).toUpperCase();
+
+    const riskClass =
+        riskLevel === "CRITICAL"
+            ? "risk-critical"
+            : riskLevel === "HIGH"
+                ? "risk-high"
+                : riskLevel === "MEDIUM"
+                    ? "risk-medium"
+                    : "risk-low";
+
+    let services = [];
+
+    try {
+
+        if (node.services) {
+
+            services =
+                Array.isArray(node.services)
+                    ? node.services
+                    : [];
+
+        }
 
         if (
-            !source ||
-            !target
+            !services.length &&
+            node.ip
         ) {
 
-            return;
+            const data =
+                await apiFetch(
+                    "/api/devices/" +
+                    encodeURIComponent(
+                        node.ip
+                    )
+                );
+
+            services =
+                data.services ||
+                [];
 
         }
 
+    } catch (error) {
 
-        const line =
-            document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "line"
-            );
-
-
-        line.setAttribute(
-            "x1",
-            source.x
+        console.warn(
+            "Could not load device details:",
+            error
         );
 
+    }
 
-        line.setAttribute(
-            "y1",
-            source.y
+    const serviceCount =
+        Number(
+            node.service_count ??
+            services.length ??
+            0
         );
 
-
-        line.setAttribute(
-            "x2",
-            target.x
-        );
-
-
-        line.setAttribute(
-            "y2",
-            target.y
-        );
-
-
-        line.setAttribute(
-            "stroke",
-            "#475569"
-        );
-
-
-        line.setAttribute(
-            "stroke-width",
-            "2"
-        );
-
-
-        svg.appendChild(
-            line
-        );
-
-    });
-
-
-    /* NODES */
-
-
-    nodes.forEach(node => {
-
-        const position =
-            positions[node.id];
-
-
-        if (!position) {
-
-            return;
-
-        }
-
-
-        const group =
-            document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "g"
-            );
-
-
-        /* NODE CIRCLE */
-
-
-        const circle =
-            document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "circle"
-            );
-
-
-        circle.setAttribute(
-            "cx",
-            position.x
-        );
-
-
-        circle.setAttribute(
-            "cy",
-            position.y
-        );
-
-
-        circle.setAttribute(
-            "r",
-            "30"
-        );
-
-
-        if (
-            node.role ===
-            "Gateway"
-        ) {
-
-            circle.setAttribute(
-                "fill",
-                "#2563eb"
-            );
-
-        } else if (
-            node.role ===
-            "Local Host"
-        ) {
-
-            circle.setAttribute(
-                "fill",
-                "#16a34a"
-            );
-
-        } else {
-
-            circle.setAttribute(
-                "fill",
-                "#64748b"
-            );
-
-        }
-
-
-        group.appendChild(
-            circle
-        );
-
-
-        /* NODE LABEL */
-
-
-        const text =
-            document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "text"
-            );
-
-
-        text.setAttribute(
-            "x",
-            position.x
-        );
-
-
-        text.setAttribute(
-            "y",
-            position.y + 50
-        );
-
-
-        text.setAttribute(
-            "text-anchor",
-            "middle"
-        );
-
-
-        text.setAttribute(
-            "fill",
-            "#e5e7eb"
-        );
-
-
-        text.setAttribute(
-            "font-size",
-            "14"
-        );
-
-
-        text.textContent =
-            node.label ||
-            node.ip;
-
-
-        group.appendChild(
-            text
-        );
-
-
-        /* NODE IP */
-
-
-        const ipText =
-            document.createElementNS(
-                "http://www.w3.org/2000/svg",
-                "text"
-            );
-
-
-        ipText.setAttribute(
-            "x",
-            position.x
-        );
-
-
-        ipText.setAttribute(
-            "y",
-            position.y + 67
-        );
-
-
-        ipText.setAttribute(
-            "text-anchor",
-            "middle"
-        );
-
-
-        ipText.setAttribute(
-            "fill",
-            "#64748b"
-        );
-
-
-        ipText.setAttribute(
-            "font-size",
-            "10"
-        );
-
-
-        ipText.textContent =
-            node.ip || "";
-
-
-        group.appendChild(
-            ipText
-        );
-
-
-        svg.appendChild(
-            group
-        );
-
-    });
+    panel.innerHTML = `
+
+        <div class="details-title">
+            ${escapeHtml(
+                topologyNodeLabel(node)
+            )}
+        </div>
+
+        <div class="details-grid">
+
+            <div class="detail-row">
+                <span class="detail-key">
+                    IP
+                </span>
+                <span class="detail-value">
+                    ${escapeHtml(node.ip)}
+                </span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-key">
+                    MAC
+                </span>
+                <span class="detail-value">
+                    ${escapeHtml(
+                        node.mac || "-"
+                    )}
+                </span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-key">
+                    Vendor
+                </span>
+                <span class="detail-value">
+                    ${escapeHtml(
+                        node.vendor || "-"
+                    )}
+                </span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-key">
+                    Role
+                </span>
+                <span class="detail-value">
+                    ${escapeHtml(
+                        node.role || "-"
+                    )}
+                </span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-key">
+                    OS
+                </span>
+                <span class="detail-value">
+                    ${escapeHtml(
+                        node.os || "-"
+                    )}
+                </span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-key">
+                    Risk
+                </span>
+                <span class="detail-value ${riskClass}">
+                    ${Math.round(score)}
+                    / 100
+                    —
+                    ${escapeHtml(riskLevel)}
+                </span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-key">
+                    Services
+                </span>
+                <span class="detail-value">
+                    ${serviceCount}
+                </span>
+            </div>
+
+            <div class="detail-row">
+                <span class="detail-key">
+                    Alert
+                </span>
+                <span class="detail-value ${
+                    node.alert ||
+                    node.has_alert
+                        ? "risk-high"
+                        : "risk-low"
+                }">
+                    ${
+                        node.alert ||
+                        node.has_alert
+                            ? "ACTIVE"
+                            : "None"
+                    }
+                </span>
+            </div>
+
+        </div>
+    `;
 
 }
 
 
-/* HTML ESCAPING */
+/*
+ * Draw live network topology.
+ */
 
+function drawLiveTopology(
+    topology
+) {
 
-function escapeHtml(value) {
-
-    const div =
-        document.createElement(
-            "div"
+    const svg =
+        document.getElementById(
+            "liveTopology"
         );
 
+    if (!svg) {
+        return;
+    }
 
-    div.textContent =
-        String(value);
+    svg.innerHTML = "";
 
+    const nodes =
+        Array.isArray(
+            topology?.nodes
+        )
+            ? topology.nodes
+            : [];
 
-    return div.innerHTML;
+    const edges =
+        Array.isArray(
+            topology?.edges
+        )
+            ? topology.edges
+            : [];
+
+    const nodeCount =
+        document.getElementById(
+            "topologyNodeCount"
+        );
+
+    const edgeCount =
+        document.getElementById(
+            "topologyEdgeCount"
+        );
+
+    const lastUpdate =
+        document.getElementById(
+            "topologyLastUpdate"
+        );
+
+    if (nodeCount) {
+
+        nodeCount.textContent =
+            "Nodes: " +
+            nodes.length;
+
+    }
+
+    if (edgeCount) {
+
+        edgeCount.textContent =
+            "Links: " +
+            edges.length;
+
+    }
+
+    if (lastUpdate) {
+
+        lastUpdate.textContent =
+            "Last update: " +
+            new Date()
+                .toLocaleTimeString();
+
+    }
+
+    /*
+     * Empty topology
+     */
+
+    if (!nodes.length) {
+
+        const message =
+            createTopologySvgElement(
+                "text",
+                {
+                    x: "600",
+                    y: "320",
+                    fill: "#94a3b8",
+                    "text-anchor": "middle",
+                    "font-size": "18",
+                    "font-weight": "600"
+                }
+            );
+
+        message.textContent =
+            "No network topology available";
+
+        svg.appendChild(
+            message
+        );
+
+        return;
+    }
+
+    /*
+     * Background
+     */
+
+    const background =
+        createTopologySvgElement(
+            "rect",
+            {
+                x: "0",
+                y: "0",
+                width: "1200",
+                height: "650",
+                fill: "#0b1020"
+            }
+        );
+
+    svg.appendChild(
+        background
+    );
+
+    /*
+     * Grid
+     */
+
+    const grid =
+        createTopologySvgElement(
+            "g",
+            {
+                opacity: "0.12"
+            }
+        );
+
+    for (
+        let x = 0;
+        x <= 1200;
+        x += 50
+    ) {
+
+        grid.appendChild(
+            createTopologySvgElement(
+                "line",
+                {
+                    x1: x,
+                    y1: 0,
+                    x2: x,
+                    y2: 650,
+                    stroke: "#64748b",
+                    "stroke-width": "1"
+                }
+            )
+        );
+
+    }
+
+    for (
+        let y = 0;
+        y <= 650;
+        y += 50
+    ) {
+
+        grid.appendChild(
+            createTopologySvgElement(
+                "line",
+                {
+                    x1: 0,
+                    y1: y,
+                    x2: 1200,
+                    y2: y,
+                    stroke: "#64748b",
+                    "stroke-width": "1"
+                }
+            )
+        );
+
+    }
+
+    svg.appendChild(
+        grid
+    );
+
+    /*
+     * Positions
+     */
+
+    const positions =
+        calculateTopologyPositions(
+            nodes
+        );
+
+    /*
+     * Links
+     */
+
+    edges.forEach(
+        edge => {
+
+            const source =
+                positions[
+                    edge.source
+                ];
+
+            const target =
+                positions[
+                    edge.target
+                ];
+
+            if (
+                !source ||
+                !target
+            ) {
+                return;
+            }
+
+            const sourceNode =
+                nodes.find(
+                    node =>
+                        node.id ===
+                        edge.source
+                );
+
+            const targetNode =
+                nodes.find(
+                    node =>
+                        node.id ===
+                        edge.target
+                );
+
+            const linkAlert =
+                sourceNode?.alert === true ||
+                sourceNode?.has_alert === true ||
+                targetNode?.alert === true ||
+                targetNode?.has_alert === true;
+
+            const line =
+                createTopologySvgElement(
+                    "line",
+                    {
+                        x1: source.x,
+                        y1: source.y,
+                        x2: target.x,
+                        y2: target.y,
+                        stroke:
+                            linkAlert
+                                ? "#ef4444"
+                                : "#475569",
+                        "stroke-width":
+                            linkAlert
+                                ? "3"
+                                : "2",
+                        opacity:
+                            linkAlert
+                                ? "0.95"
+                                : "0.75"
+                    }
+                );
+
+            svg.appendChild(
+                line
+            );
+
+        }
+    );
+
+    /*
+     * Nodes
+     */
+
+    nodes.forEach(
+        node => {
+
+            const position =
+                positions[
+                    node.id
+                ];
+
+            if (!position) {
+                return;
+            }
+
+            const group =
+                createTopologySvgElement(
+                    "g",
+                    {
+                        style:
+                            "cursor:pointer"
+                    }
+                );
+
+            const riskScore =
+                Number(
+                    node.risk_score ??
+                    node.risk ??
+                    0
+                );
+
+            const riskLevel =
+                String(
+                    node.risk_level ||
+                    (
+                        riskScore >= 90
+                            ? "CRITICAL"
+                            : riskScore >= 70
+                                ? "HIGH"
+                                : riskScore >= 40
+                                    ? "MEDIUM"
+                                    : "LOW"
+                    )
+                ).toUpperCase();
+
+            const hasAlert =
+                node.alert === true ||
+                node.has_alert === true ||
+                node.status === "ALERT";
+
+            /*
+             * Alert ring
+             */
+
+            if (hasAlert) {
+
+                const outerRing =
+                    createTopologySvgElement(
+                        "circle",
+                        {
+                            cx: position.x,
+                            cy: position.y,
+                            r: "40",
+                            fill: "none",
+                            stroke: "#ef4444",
+                            "stroke-width": "4",
+                            opacity: "0.95"
+                        }
+                    );
+
+                group.appendChild(
+                    outerRing
+                );
+
+                const innerRing =
+                    createTopologySvgElement(
+                        "circle",
+                        {
+                            cx: position.x,
+                            cy: position.y,
+                            r: "35",
+                            fill: "none",
+                            stroke: "#f87171",
+                            "stroke-width": "2",
+                            opacity: "0.65"
+                        }
+                    );
+
+                group.appendChild(
+                    innerRing
+                );
+
+            }
+
+            /*
+             * Main node
+             */
+
+            const circle =
+                createTopologySvgElement(
+                    "circle",
+                    {
+                        cx: position.x,
+                        cy: position.y,
+                        r: "29",
+                        fill:
+                            topologyNodeColor(
+                                node
+                            ),
+                        stroke:
+                            hasAlert
+                                ? "#fecaca"
+                                : "#e5e7eb",
+                        "stroke-width":
+                            hasAlert
+                                ? "3"
+                                : "2"
+                    }
+                );
+
+            group.appendChild(
+                circle
+            );
+
+            /*
+             * Risk badge
+             */
+
+            if (
+                node.role !== "Gateway" &&
+                node.role !== "Local Host"
+            ) {
+
+                let badgeColor =
+                    "#15803d";
+
+                if (
+                    riskLevel ===
+                    "MEDIUM"
+                ) {
+
+                    badgeColor =
+                        "#d97706";
+
+                } else if (
+                    riskLevel ===
+                    "HIGH"
+                ) {
+
+                    badgeColor =
+                        "#dc2626";
+
+                } else if (
+                    riskLevel ===
+                    "CRITICAL"
+                ) {
+
+                    badgeColor =
+                        "#991b1b";
+                }
+
+                const badge =
+                    createTopologySvgElement(
+                        "circle",
+                        {
+                            cx:
+                                position.x +
+                                22,
+
+                            cy:
+                                position.y -
+                                22,
+
+                            r: "12",
+
+                            fill:
+                                badgeColor,
+
+                            stroke:
+                                "#0f172a",
+
+                            "stroke-width":
+                                "2"
+                        }
+                    );
+
+                group.appendChild(
+                    badge
+                );
+
+                const riskNumber =
+                    createTopologySvgElement(
+                        "text",
+                        {
+                            x:
+                                position.x +
+                                22,
+
+                            y:
+                                position.y -
+                                18,
+
+                            fill: "#ffffff",
+
+                            "text-anchor":
+                                "middle",
+
+                            "font-size":
+                                "8",
+
+                            "font-weight":
+                                "bold",
+
+                            "pointer-events":
+                                "none"
+                        }
+                    );
+
+                riskNumber.textContent =
+                    Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            Math.round(
+                                Number.isFinite(
+                                    riskScore
+                                )
+                                    ? riskScore
+                                    : 0
+                            )
+                        )
+                    );
+
+                group.appendChild(
+                    riskNumber
+                );
+
+            }
+
+            /*
+             * Symbol
+             */
+
+            const symbol =
+                createTopologySvgElement(
+                    "text",
+                    {
+                        x: position.x,
+                        y:
+                            position.y +
+                            6,
+                        fill: "#ffffff",
+                        "text-anchor":
+                            "middle",
+                        "font-size": "15",
+                        "font-weight":
+                            "bold",
+                        "pointer-events":
+                            "none"
+                    }
+                );
+
+            if (
+                node.role ===
+                "Gateway"
+            ) {
+
+                symbol.textContent =
+                    "GW";
+
+            } else if (
+                node.role ===
+                "Local Host"
+            ) {
+
+                symbol.textContent =
+                    "PC";
+
+            } else {
+
+                symbol.textContent =
+                    "●";
+            }
+
+            group.appendChild(
+                symbol
+            );
+
+            /*
+             * Hostname
+             */
+
+            const label =
+                createTopologySvgElement(
+                    "text",
+                    {
+                        x: position.x,
+                        y:
+                            position.y +
+                            51,
+                        fill: "#f8fafc",
+                        "text-anchor":
+                            "middle",
+                        "font-size":
+                            "13",
+                        "font-weight":
+                            "600",
+                        "pointer-events":
+                            "none"
+                    }
+                );
+
+            label.textContent =
+                topologyNodeLabel(
+                    node
+                );
+
+            group.appendChild(
+                label
+            );
+
+            /*
+             * IP
+             */
+
+            const ip =
+                createTopologySvgElement(
+                    "text",
+                    {
+                        x: position.x,
+                        y:
+                            position.y +
+                            68,
+                        fill: "#94a3b8",
+                        "text-anchor":
+                            "middle",
+                        "font-size":
+                            "11",
+                        "pointer-events":
+                            "none"
+                    }
+                );
+
+            ip.textContent =
+                node.ip ||
+                "";
+
+            group.appendChild(
+                ip
+            );
+
+            /*
+             * Services
+             */
+
+            const serviceCount =
+                Number(
+                    node.service_count ??
+                    (
+                        Array.isArray(
+                            node.services
+                        )
+                            ? node.services.length
+                            : 0
+                    )
+                );
+
+            if (
+                serviceCount > 0
+            ) {
+
+                const serviceText =
+                    createTopologySvgElement(
+                        "text",
+                        {
+                            x:
+                                position.x,
+                            y:
+                                position.y +
+                                84,
+                            fill:
+                                "#cbd5e1",
+                            "text-anchor":
+                                "middle",
+                            "font-size":
+                                "10",
+                            "pointer-events":
+                                "none"
+                        }
+                    );
+
+                serviceText.textContent =
+                    serviceCount === 1
+                        ? "1 service"
+                        : serviceCount +
+                          " services";
+
+                group.appendChild(
+                    serviceText
+                );
+            }
+
+            /*
+             * Risk label
+             */
+
+            if (
+                node.role !==
+                    "Gateway" &&
+                node.role !==
+                    "Local Host"
+            ) {
+
+                let riskColor =
+                    "#86efac";
+
+                if (
+                    riskLevel ===
+                    "MEDIUM"
+                ) {
+
+                    riskColor =
+                        "#fbbf24";
+
+                } else if (
+                    riskLevel ===
+                    "HIGH"
+                ) {
+
+                    riskColor =
+                        "#f87171";
+
+                } else if (
+                    riskLevel ===
+                    "CRITICAL"
+                ) {
+
+                    riskColor =
+                        "#fecaca";
+                }
+
+                const riskText =
+                    createTopologySvgElement(
+                        "text",
+                        {
+                            x:
+                                position.x,
+                            y:
+                                position.y +
+                                99,
+                            fill:
+                                riskColor,
+                            "text-anchor":
+                                "middle",
+                            "font-size":
+                                "9",
+                            "font-weight":
+                                "600",
+                            "pointer-events":
+                                "none"
+                        }
+                    );
+
+                riskText.textContent =
+                    riskLevel +
+                    " • " +
+                    Math.round(
+                        Number.isFinite(
+                            riskScore
+                        )
+                            ? riskScore
+                            : 0
+                    );
+
+                group.appendChild(
+                    riskText
+                );
+            }
+
+            /*
+             * Click
+             */
+
+            group.addEventListener(
+                "click",
+                () => {
+
+                    showTopologyDetails(
+                        node
+                    );
+
+                }
+            );
+
+            svg.appendChild(
+                group
+            );
+
+        }
+    );
 
 }
 
 
-/* INITIAL LOAD */
+/*
+ * Load live topology
+ */
+
+async function loadLiveTopology() {
+
+    try {
+
+        const status =
+            await apiFetch(
+                "/api/status"
+            );
+
+        const topology =
+            status.topology ||
+            null;
+
+        currentTopology =
+            topology;
+
+        drawLiveTopology(
+            topology
+        );
+
+        /*
+         * Metrics
+         */
+
+        const devices =
+            status.devices ||
+            [];
+
+        const alerts =
+            status.alerts ||
+            [];
+
+        const services =
+            status.services ||
+            [];
+
+        const deviceMetric =
+            document.getElementById(
+                "metricDevices"
+            );
+
+        const alertMetric =
+            document.getElementById(
+                "metricAlerts"
+            );
+
+        const serviceMetric =
+            document.getElementById(
+                "metricServices"
+            );
+
+        if (deviceMetric) {
+            deviceMetric.textContent =
+                devices.length ||
+                topology?.nodes?.length ||
+                0;
+        }
+
+        if (alertMetric) {
+            alertMetric.textContent =
+                alerts.length;
+        }
+
+        if (serviceMetric) {
+            serviceMetric.textContent =
+                services.length;
+        }
+
+        const liveStatus =
+            document.getElementById(
+                "topologyLiveStatus"
+            );
+
+        if (liveStatus) {
+
+            liveStatus.textContent =
+                "● LIVE";
+
+            liveStatus.className =
+                "status-chip live";
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Live topology error:",
+            error
+        );
+
+        const liveStatus =
+            document.getElementById(
+                "topologyLiveStatus"
+            );
+
+        if (liveStatus) {
+
+            liveStatus.textContent =
+                "● OFFLINE";
+
+            liveStatus.className =
+                "status-chip offline";
+        }
+
+    }
+
+}
 
 
-loadDashboard();
+/*
+ * Load devices
+ */
+
+async function loadDevices() {
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/api/devices"
+            );
+
+        const devices =
+            Array.isArray(data)
+                ? data
+                : (
+                    data.devices ||
+                    []
+                );
+
+        const tbody =
+            document.getElementById(
+                "devices"
+            );
+
+        if (!tbody) {
+            return;
+        }
+
+        if (!devices.length) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="8"
+                        class="empty"
+                    >
+                        No devices discovered.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        tbody.innerHTML =
+            devices.map(
+                device => {
+
+                    const score =
+                        Number(
+                            device.risk_score ??
+                            device.risk ??
+                            0
+                        );
+
+                    const level =
+                        String(
+                            device.risk_level ||
+                            (
+                                score >= 90
+                                    ? "CRITICAL"
+                                    : score >= 70
+                                        ? "HIGH"
+                                        : score >= 40
+                                            ? "MEDIUM"
+                                            : "LOW"
+                            )
+                        );
+
+                    return `
+                        <tr>
+
+                            <td>
+                                ${escapeHtml(
+                                    device.ip
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    device.hostname ||
+                                    "-"
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    device.mac ||
+                                    "-"
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    device.vendor ||
+                                    "-"
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    device.role ||
+                                    "Device"
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    device.os ||
+                                    "-"
+                                )}
+                            </td>
+
+                            <td
+                                class="${
+                                    level ===
+                                    "CRITICAL"
+                                        ? "risk-critical"
+                                        : level ===
+                                          "HIGH"
+                                            ? "risk-high"
+                                            : level ===
+                                              "MEDIUM"
+                                                ? "risk-medium"
+                                                : "risk-low"
+                                }"
+                            >
+                                ${Math.round(score)}
+                                —
+                                ${escapeHtml(
+                                    level
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    device.status ||
+                                    "up"
+                                )}
+                            </td>
+
+                        </tr>
+                    `;
+
+                }
+            ).join("");
+
+    } catch (error) {
+
+        console.warn(
+            "Device loading error:",
+            error
+        );
+
+    }
+
+}
 
 
-/* REFRESH EVERY 5 SECONDS */
+/*
+ * Load services
+ */
 
+async function loadServices() {
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/api/services"
+            );
+
+        const services =
+            Array.isArray(data)
+                ? data
+                : (
+                    data.services ||
+                    []
+                );
+
+        const tbody =
+            document.getElementById(
+                "services"
+            );
+
+        if (!tbody) {
+            return;
+        }
+
+        if (!services.length) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="6"
+                        class="empty"
+                    >
+                        No services discovered.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        tbody.innerHTML =
+            services.map(
+                service => `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(
+                                service.ip ||
+                                service.host ||
+                                "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                service.port ||
+                                "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                service.protocol ||
+                                "tcp"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                service.service ||
+                                "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                service.product ||
+                                "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                service.version ||
+                                "-"
+                            )}
+                        </td>
+
+                    </tr>
+
+                `
+            ).join("");
+
+    } catch (error) {
+
+        console.warn(
+            "Service loading error:",
+            error
+        );
+
+    }
+
+}
+
+
+/*
+ * Load events
+ */
+
+async function loadEvents() {
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/api/events"
+            );
+
+        const events =
+            Array.isArray(data)
+                ? data
+                : (
+                    data.events ||
+                    []
+                );
+
+        const tbody =
+            document.getElementById(
+                "events"
+            );
+
+        if (!tbody) {
+            return;
+        }
+
+        if (!events.length) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="5"
+                        class="empty"
+                    >
+                        No security events.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        tbody.innerHTML =
+            events.map(
+                event => `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(
+                                event.timestamp ||
+                                "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                event.event_type ||
+                                event.type ||
+                                "-"
+                            )}
+                        </td>
+
+                        <td
+                            class="severity severity-${
+                                escapeHtml(
+                                    String(
+                                        event.severity ||
+                                        "LOW"
+                                    ).toUpperCase()
+                                )
+                            }"
+                        >
+                            ${escapeHtml(
+                                String(
+                                    event.severity ||
+                                    "LOW"
+                                ).toUpperCase()
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                event.ip ||
+                                "-"
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                event.message ||
+                                "-"
+                            )}
+                        </td>
+
+                    </tr>
+
+                `
+            ).join("");
+
+    } catch (error) {
+
+        console.warn(
+            "Event loading error:",
+            error
+        );
+
+    }
+
+}
+
+
+/*
+ * Load alerts
+ */
+
+async function loadAlerts() {
+
+    try {
+
+        const severity =
+            document.getElementById(
+                "alertSeverityFilter"
+            )?.value || "";
+
+        const status =
+            document.getElementById(
+                "alertStatusFilter"
+            )?.value || "";
+
+        const params =
+            new URLSearchParams();
+
+        if (severity) {
+            params.set(
+                "severity",
+                severity
+            );
+        }
+
+        if (status) {
+            params.set(
+                "status",
+                status
+            );
+        }
+
+        const data =
+            await apiFetch(
+                "/api/alerts?" +
+                params.toString()
+            );
+
+        const alerts =
+            Array.isArray(data)
+                ? data
+                : (
+                    data.alerts ||
+                    []
+                );
+
+        const tbody =
+            document.getElementById(
+                "alerts"
+            );
+
+        if (!tbody) {
+            return;
+        }
+
+        if (!alerts.length) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="8"
+                        class="empty"
+                    >
+                        No alerts match the current filters.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        tbody.innerHTML =
+            alerts.map(
+                alert => {
+
+                    const alertId =
+                        alert.id;
+
+                    const currentStatus =
+                        String(
+                            alert.status ||
+                            "NEW"
+                        ).toUpperCase();
+
+                    return `
+
+                        <tr>
+
+                            <td>
+                                ${escapeHtml(
+                                    alertId
+                                )}
+                            </td>
+
+                            <td
+                                class="severity severity-${
+                                    escapeHtml(
+                                        String(
+                                            alert.severity ||
+                                            "LOW"
+                                        ).toUpperCase()
+                                    )
+                                }"
+                            >
+                                ${escapeHtml(
+                                    String(
+                                        alert.severity ||
+                                        "LOW"
+                                    ).toUpperCase()
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    alert.alert_type ||
+                                    alert.type ||
+                                    "-"
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    alert.ip ||
+                                    "-"
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    alert.message ||
+                                    alert.title ||
+                                    "-"
+                                )}
+                            </td>
+
+                            <td
+                                class="status-${
+                                    escapeHtml(
+                                        currentStatus
+                                    )
+                                }"
+                            >
+                                ${escapeHtml(
+                                    currentStatus
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    alert.timestamp ||
+                                    "-"
+                                )}
+                            </td>
+
+                            <td>
+
+                                ${
+                                    currentStatus !==
+                                    "ACKNOWLEDGED" &&
+                                    currentStatus !==
+                                    "RESOLVED"
+
+                                        ? `
+                                            <button
+                                                class="button"
+                                                onclick="acknowledgeAlert(${Number(alertId)})"
+                                            >
+                                                Ack
+                                            </button>
+                                        `
+                                        : ""
+                                }
+
+                                ${
+                                    currentStatus !==
+                                    "RESOLVED"
+
+                                        ? `
+                                            <button
+                                                class="button"
+                                                onclick="resolveAlert(${Number(alertId)})"
+                                            >
+                                                Resolve
+                                            </button>
+                                        `
+                                        : ""
+                                }
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            ).join("");
+
+    } catch (error) {
+
+        console.warn(
+            "Alert loading error:",
+            error
+        );
+
+    }
+
+}
+
+
+/*
+ * Acknowledge alert
+ */
+
+async function acknowledgeAlert(
+    id
+) {
+
+    try {
+
+        await apiFetch(
+            "/api/alerts/" +
+            encodeURIComponent(id) +
+            "/acknowledge",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                }
+            }
+        );
+
+        await loadAlerts();
+
+    } catch (error) {
+
+        console.error(
+            "Alert acknowledgement failed:",
+            error
+        );
+
+    }
+
+}
+
+
+/*
+ * Resolve alert
+ */
+
+async function resolveAlert(
+    id
+) {
+
+    try {
+
+        await apiFetch(
+            "/api/alerts/" +
+            encodeURIComponent(id) +
+            "/resolve",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                }
+            }
+        );
+
+        await loadAlerts();
+
+    } catch (error) {
+
+        console.error(
+            "Alert resolution failed:",
+            error
+        );
+
+    }
+
+}
+
+
+/*
+ * Analytics
+ */
+
+async function loadAnalytics() {
+
+    try {
+
+        const analytics =
+            await apiFetch(
+                "/api/analytics"
+            );
+
+        const events =
+            document.getElementById(
+                "analyticsEvents"
+            );
+
+        const newDevices =
+            document.getElementById(
+                "analyticsNewDevices"
+            );
+
+        const openAlerts =
+            document.getElementById(
+                "analyticsOpenAlerts"
+            );
+
+        const resolvedAlerts =
+            document.getElementById(
+                "analyticsResolvedAlerts"
+            );
+
+        if (events) {
+
+            events.textContent =
+                analytics.total_events ??
+                analytics.events ??
+                0;
+
+        }
+
+        if (newDevices) {
+
+            newDevices.textContent =
+                analytics.new_devices ??
+                0;
+
+        }
+
+        if (openAlerts) {
+
+            openAlerts.textContent =
+                analytics.alerts?.open ??
+                analytics.open_alerts ??
+                0;
+
+        }
+
+        if (resolvedAlerts) {
+
+            resolvedAlerts.textContent =
+                analytics.alerts?.resolved ??
+                analytics.resolved_alerts ??
+                0;
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Analytics loading error:",
+            error
+        );
+
+    }
+
+}
+
+
+/*
+ * Historical topology
+ */
+
+async function loadHistoricalTopology() {
+
+    try {
+
+        const data =
+            await apiFetch(
+                "/api/topology/history"
+            );
+
+        const history =
+            Array.isArray(data)
+                ? data
+                : (
+                    data.topology ||
+                    data.history ||
+                    []
+                );
+
+        const container =
+            document.getElementById(
+                "historicalTopology"
+            );
+
+        if (!container) {
+            return;
+        }
+
+        if (!history.length) {
+
+            container.innerHTML = `
+                <div class="empty">
+                    No topology history available.
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML = `
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Nodes</th>
+                        <th>Links</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    ${
+                        history
+                            .map(
+                                item => `
+
+                                    <tr>
+
+                                        <td>
+                                            ${escapeHtml(
+                                                item.timestamp ||
+                                                "-"
+                                            )}
+                                        </td>
+
+                                        <td>
+                                            ${
+                                                item.node_count ??
+                                                item.nodes?.length ??
+                                                0
+                                            }
+                                        </td>
+
+                                        <td>
+                                            ${
+                                                item.edge_count ??
+                                                item.edges?.length ??
+                                                0
+                                            }
+                                        </td>
+
+                                    </tr>
+
+                                `
+                            )
+                            .join("")
+                    }
+
+                </tbody>
+
+            </table>
+
+        `;
+
+    } catch (error) {
+
+        console.warn(
+            "Topology history error:",
+            error
+        );
+
+    }
+
+}
+
+
+/*
+ * Security report
+ */
+
+async function generateSecurityReport() {
+
+    const output =
+        document.getElementById(
+            "reportOutput"
+        );
+
+    if (!output) {
+        return;
+    }
+
+    output.innerHTML = `
+        <div class="empty">
+            Generating security report...
+        </div>
+    `;
+
+    try {
+
+        const report =
+            await apiFetch(
+                "/api/reports/security"
+            );
+
+        output.innerHTML = `
+
+            <pre
+                style="
+                    margin:0;
+                    white-space:pre-wrap;
+                    color:#cbd5e1;
+                    font-size:12px;
+                    line-height:1.6;
+                "
+            >${escapeHtml(
+                JSON.stringify(
+                    report,
+                    null,
+                    2
+                )
+            )}</pre>
+
+        `;
+
+    } catch (error) {
+
+        output.innerHTML = `
+            <div class="empty error">
+                Failed to generate security report.
+            </div>
+        `;
+
+    }
+
+}
+
+
+/*
+ * Refresh everything
+ */
+
+async function refreshDashboard() {
+
+    await Promise.allSettled(
+        [
+            loadLiveTopology(),
+            loadDevices(),
+            loadServices(),
+            loadEvents(),
+            loadAlerts(),
+            loadAnalytics(),
+            loadHistoricalTopology()
+        ]
+    );
+
+}
+
+
+/*
+ * Filters
+ */
+
+document
+    .getElementById(
+        "alertSeverityFilter"
+    )
+    ?.addEventListener(
+        "change",
+        loadAlerts
+    );
+
+document
+    .getElementById(
+        "alertStatusFilter"
+    )
+    ?.addEventListener(
+        "change",
+        loadAlerts
+    );
+
+
+/*
+ * Report button
+ */
+
+document
+    .getElementById(
+        "generateReport"
+    )
+    ?.addEventListener(
+        "click",
+        generateSecurityReport
+    );
+
+
+/*
+ * Initial load
+ */
+
+refreshDashboard();
+
+
+/*
+ * Live refresh.
+ *
+ * The live monitor performs the actual
+ * network discovery. The dashboard only
+ * refreshes the existing state.
+ */
 
 setInterval(
-    loadDashboard,
+    refreshDashboard,
     5000
 );
 
-
 </script>
 
-
 </body>
-
 </html>
