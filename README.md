@@ -466,7 +466,7 @@ Example:
                  NETMAP LIVE MONITOR
 ============================================================
 
-Network : 10.10.10.0/24
+Network : __.__.__.0/24
 Interval: 10 seconds
 
 [*] Starting initial scan...
@@ -505,7 +505,7 @@ The alert contains:
     "type": "NETWORK_DEVICE_CHANGE",
     "title": "New Network Device Detected",
     "severity": "MEDIUM",
-    "message": "New device detected at 10.10.10.50"
+    "message": "New device detected at __.__.__.__"
 }
 ```
 
@@ -875,9 +875,9 @@ Example development environment:
 ```text
 Operating System : Kali Linux
 Interface        : eth0
-Local IP         : 10.10.10.10
-Network          : 10.10.10.0/24
-Gateway          : 10.10.10.1
+Local IP         : __.__.__.__
+Network          : __.__.__.__/24
+Gateway          : __.__.__.__
 Scanner          : Nmap
 Dashboard        : Flask
 Testing          : pytest
@@ -886,13 +886,13 @@ Testing          : pytest
 Example discovered devices:
 
 ```text
-10.10.10.1
+__.__.__.__
     └── Gateway
 
-10.10.10.10
+__.__.__.__
     └── Local Host
 
-10.10.10.154
+__.__.__.__
     └── Device
 ```
 
@@ -903,7 +903,7 @@ Example discovered devices:
 ```text
                        ┌──────────────────┐
                        │     Gateway      │
-                       │ 10.10.10.1    │
+                       │ __.__.__.__   │
                        └────────┬─────────┘
                                 │
                   ┌─────────────┼─────────────┐
@@ -911,8 +911,8 @@ Example discovered devices:
                   ▼             ▼             ▼
           ┌────────────┐ ┌────────────┐ ┌────────────┐
           │ Local Host │ │   Device   │ │   Device   │
-          │192.168.124 │ │192.168.124 │ │192.168.124 │
-          │   .128     │ │   .254     │ │   .xxx     │
+          │__.__.__ │ │__.__.__ │ │__.__.__ │
+          │   .__     │ │   .____     │ │   .xxx     │
           └────────────┘ └────────────┘ └────────────┘
 ```
 
