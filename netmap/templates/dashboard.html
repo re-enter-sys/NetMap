@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>NetMap — Live Network Monitor</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #0b1020;
+            color: #e5e7eb;
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+        }
+
+        header {
+            padding: 22px 30px;
+            border-bottom: 1px solid #273449;
+            background: #111827;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 27px;
+        }
+
+        header p {
+            margin: 7px 0 0;
+            color: #9ca3af;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1450px;
+            margin: auto;
+            padding: 25px;
+        }
+
+        /* STATUS */
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .status-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 10px #22c55e;
+        }
+
+        .status-dot.offline {
+            background: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
+        }
+
+        #network-info {
+            color: #9ca3af;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        /* CARDS */
+
+        .cards {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: #111827;
+            border: 1px solid #273449;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .card-title {
+            color: #9ca3af;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        .card-value {
+            margin-top: 9px;
+            font-size: 27px;
+            font-weight: bold;
+            word-break: break-word;
+        }
+
+        .card-subtitle {
+            margin-top: 7px;
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        /* MAIN GRID */
+
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: #111827;
+            border: 1px solid #273449;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        /* TOPOLOGY */
+
+        #topology {
+            width: 100%;
+            height: 500px;
+            background: #080d18;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #1e293b;
+        }
+
+        #topology-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .topology-empty {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        }
+
+        /* EVENTS */
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .event-header h2 {
+            margin: 0;
+        }
+
+        #changeCounter {
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: #1e293b;
+            color: #93c5fd;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        #lastEvent {
+            margin-bottom: 14px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            background: #0b1220;
+            border-left: 4px solid #64748b;
+            color: #9ca3af;
+            font-family: monospace;
+            font-size: 11px;
+            word-break: break-word;
+        }
+
+        #lastEvent.new-event {
+            border-left-color: #22c55e;
+            color: #86efac;
+        }
+
+        #lastEvent.removed-event {
+            border-left-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        .event-list {
+            max-height: 410px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .event {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #0b1220;
+            border-left: 3px solid #64748b;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+            word-break: break-word;
+        }
+
+        .event.new-device {
+            border-left-color: #22c55e;
+        }
+
+        .event.device-removed {
+            border-left-color: #ef4444;
+        }
+
+        .event.monitor {
+            border-left-color: #3b82f6;
+        }
+
+        /* DEVICES */
+
+        .device-panel {
+            margin-top: 20px;
+        }
+
+        .device-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .device-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .device-table th,
+        .device-table td {
+            padding: 11px;
+            text-align: left;
+            border-bottom: 1px solid #273449;
+            font-size: 12px;
+        }
+
+        .device-table th {
+            color: #9ca3af;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .device-table tr:hover {
+            background: #0b1220;
+        }
+
+        .role {
+            font-weight: bold;
+        }
+
+        .role-gateway {
+            color: #60a5fa;
+        }
+
+        .role-local {
+            color: #4ade80;
+        }
+
+        .role-device {
+            color: #cbd5e1;
+        }
+
+        .status-up {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .status-down {
+            color: #f87171;
+            font-weight: bold;
+        }
+
+        /* FOOTER */
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 11px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 900px) {
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            #topology {
+                height: 420px;
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            header {
+                padding: 18px;
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .card-value {
+                font-size: 23px;
+            }
+
+            #topology {
+                height: 350px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <h1>NetMap — Live Network Monitor</h1>
+
+    <p>
+        Network discovery, topology and real-time device monitoring
+    </p>
+
+</header>
+
+
+<div class="container">
+
+
+    <!-- STATUS -->
+
+    <div class="status-bar">
+
+        <div class="status">
+
+            <span
+                id="status-dot"
+                class="status-dot"
+            ></span>
+
+            <span id="monitor-status">
+                CHECKING MONITORING...
+            </span>
+
+        </div>
+
+
+        <div id="network-info">
+            Loading network...
+        </div>
+
+    </div>
+
+
+    <!-- SUMMARY CARDS -->
+
+    <div class="cards">
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Active Devices
+            </div>
+
+            <div
+                class="card-value"
+                id="device-count"
+            >
+                -
+            </div>
+
+            <div class="card-subtitle">
+                Currently discovered
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Gateway
+            </div>
+
+            <div
+                class="card-value"
+                id="gateway"
+            >
+                -
+            </div>
+
+            <div class="card-subtitle">
+                Default route
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Local Host
+            </div>
+
+            <div
+                class="card-value"
+                id="local-host"
+            >
+                -
+            </div>
+
+            <div class="card-subtitle">
+                NetMap scanner
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Topology
+            </div>
+
+            <div
+                class="card-value"
+                id="topology-count"
+            >
+                -
+            </div>
+
+            <div class="card-subtitle">
+                Nodes and connections
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Changes
+            </div>
+
+            <div
+                class="card-value"
+                id="change-count"
+            >
+                0
+            </div>
+
+            <div class="card-subtitle">
+                Device events
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Last Update
+            </div>
+
+            <div
+                class="card-value"
+                id="last-update"
+            >
+                -
+            </div>
+
+            <div class="card-subtitle"
+                 id="monitor-age"
+            >
+                Checking monitor...
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- TOPOLOGY + EVENTS -->
+
+    <div class="grid">
+
+
+        <!-- TOPOLOGY -->
+
+        <div class="panel">
+
+            <h2>
+                Network Topology
+            </h2>
+
+            <div id="topology">
+
+                <svg id="topology-svg"></svg>
+
+            </div>
+
+        </div>
+
+
+        <!-- EVENTS -->
+
+        <div class="panel">
+
+            <div class="event-header">
+
+                <h2>
+                    Monitoring Events
+                </h2>
+
+                <span id="changeCounter">
+                    0 changes
+                </span>
+
+            </div>
+
+
+            <div id="lastEvent">
+                No events detected yet.
+            </div>
+
+
+            <div
+                class="event-list"
+                id="events"
+            >
+                Loading events...
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- DEVICES -->
+
+    <div class="panel device-panel">
+
+        <h2>
+            Discovered Devices
+        </h2>
+
+
+        <div class="device-table-wrapper">
+
+            <table class="device-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>IP</th>
+
+                        <th>Hostname</th>
+
+                        <th>MAC</th>
+
+                        <th>Vendor</th>
+
+                        <th>Role</th>
+
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="device-table-body">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+
+        NetMap • Live Network Monitoring
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+
+const API_URL = "/api/status";
+
+
+let previousDeviceCount = null;
+
+
+async function loadDashboard() {
+
+    try {
+
+        const response =
+            await fetch(API_URL, {
+                cache: "no-store"
+            });
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "API request failed"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        updateDashboard(data);
+
+
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard error:",
+            error
+        );
+
+
+        updateMonitorStatus({
+            status: "offline"
+        });
+
+    }
+
+}
+
+
+/* MONITOR STATUS */
+
+function updateMonitorStatus(monitor) {
+
+    const dot =
+        document.getElementById(
+            "status-dot"
+        );
+
+    const status =
+        document.getElementById(
+            "monitor-status"
+        );
+
+    const ageElement =
+        document.getElementById(
+            "monitor-age"
+        );
+
+
+    const monitorStatus =
+        monitor?.status || "offline";
+
+
+    dot.classList.remove(
+        "offline"
+    );
+
+
+    if (
+        monitorStatus ===
+        "running"
+    ) {
+
+        status.textContent =
+            "MONITORING";
+
+        ageElement.textContent =
+            monitor.age_seconds !== null
+                ? `Monitor heartbeat ${monitor.age_seconds}s ago`
+                : "Monitor active";
+
+    } else if (
+        monitorStatus ===
+        "stale"
+    ) {
+
+        dot.classList.add(
+            "offline"
+        );
+
+        status.textContent =
+            "MONITOR STALE";
+
+        ageElement.textContent =
+            monitor.age_seconds !== null
+                ? `Last heartbeat ${monitor.age_seconds}s ago`
+                : "Heartbeat is stale";
+
+    } else {
+
+        dot.classList.add(
+            "offline"
+        );
+
+        status.textContent =
+            "MONITOR OFFLINE";
+
+        ageElement.textContent =
+            "Live monitor is not running";
+
+    }
+
+}
+
+
+/* MAIN DASHBOARD */
+
+
+function updateDashboard(data) {
+
+    const network =
+        data.network || {};
+
+
+    const summary =
+        data.summary || {};
+
+
+    const devices =
+        data.devices || [];
+
+
+    const topology =
+        data.topology || {};
+
+
+    const events =
+        data.events || [];
+       
+        
+    const monitor =
+        data.monitor || {};
+
+
+    const lastEvent =
+        data.last_event || null;
+
+
+    /* DEVICE COUNT */
+
+
+    document.getElementById(
+        "device-count"
+    ).textContent =
+        summary.active_devices ??
+        devices.length;
+
+
+    /* GATEWAY */
+
+
+    document.getElementById(
+        "gateway"
+    ).textContent =
+        network.gateway ||
+        "N/A";
+
+
+    /* LOCAL HOST */
+
+
+    const localDevice =
+        devices.find(
+            device =>
+                device.role === "Local Host"
+        );
+
+
+    document.getElementById(
+        "local-host"
+    ).textContent =
+        localDevice
+            ? localDevice.ip
+            : network.ip || "N/A";
+
+
+    /* TOPOLOGY */
+
+
+    const nodeCount =
+        topology.nodes?.length || 0;
+
+
+    const edgeCount =
+        topology.edges?.length || 0;
+
+
+    document.getElementById(
+        "topology-count"
+    ).textContent =
+        `${nodeCount} / ${edgeCount}`;
+
+
+    /* NETWORK */
+
+
+    document.getElementById(
+        "network-info"
+    ).textContent =
+        `${network.interface || "?"}`
+        + " • "
+        + `${network.network || "Unknown network"}`;
+
+
+    /* CHANGES */
+
+
+    const changeEvents =
+        events.filter(
+            event =>
+                event.includes(
+                    "NEW_DEVICE"
+                )
+                ||
+                event.includes(
+                    "DEVICE_REMOVED"
+                )
+        );
+
+
+    document.getElementById(
+        "change-count"
+    ).textContent =
+        changeEvents.length;
+
+
+    document.getElementById(
+        "changeCounter"
+    ).textContent =
+        `${changeEvents.length} changes`;
+
+
+    /* LAST UPDATE */
+
+
+    document.getElementById(
+        "last-update"
+    ).textContent =
+        new Date().toLocaleTimeString();
+
+
+    /* COMPONENTS */
+
+
+    updateLastEvent(
+        lastEvent
+    );
+    
+    
+    updateMonitorStatus(
+        monitor
+    );
+
+
+    updateEvents(
+        events
+    );
+
+
+    updateDevices(
+        devices
+    );
+
+
+    drawTopology(
+        topology
+    );
+
+
+    previousDeviceCount =
+        devices.length;
+
+}
+
+
+/* LAST EVENT */
+
+
+function updateLastEvent(event) {
+
+    const element =
+        document.getElementById(
+            "lastEvent"
+        );
+
+
+    element.className =
+        "last-event";
+
+
+    if (!event) {
+
+        element.textContent =
+            "No events detected yet.";
+
+        return;
+
+    }
+
+
+    element.textContent =
+        event;
+
+
+    if (
+        event.includes(
+            "NEW_DEVICE"
+        )
+    ) {
+
+        element.classList.add(
+            "new-event"
+        );
+
+    }
+
+
+    if (
+        event.includes(
+            "DEVICE_REMOVED"
+        )
+    ) {
+
+        element.classList.add(
+            "removed-event"
+        );
+
+    }
+
+}
+
+
+/* EVENTS */
+
+
+function updateEvents(events) {
+
+    const container =
+        document.getElementById(
+            "events"
+        );
+
+
+    if (!events.length) {
+
+        container.innerHTML =
+            `
+            <div class="event">
+                No events recorded.
+            </div>
+            `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        events
+            .slice()
+            .reverse()
+            .map(event => {
+
+                let eventClass =
+                    "event";
+
+
+                if (
+                    event.includes(
+                        "NEW_DEVICE"
+                    )
+                ) {
+
+                    eventClass +=
+                        " new-device";
+
+                } else if (
+                    event.includes(
+                        "DEVICE_REMOVED"
+                    )
+                ) {
+
+                    eventClass +=
+                        " device-removed";
+
+                } else if (
+                    event.includes(
+                        "MONITOR_"
+                    )
+                ) {
+
+                    eventClass +=
+                        " monitor";
+
+                }
+
+
+                return `
+                    <div class="${eventClass}">
+                        ${escapeHtml(event)}
+                    </div>
+                `;
+
+            })
+            .join("");
+
+}
+
+
+/* DEVICES */
+
+
+function updateDevices(devices) {
+
+    const body =
+        document.getElementById(
+            "device-table-body"
+        );
+
+
+    if (!devices.length) {
+
+        body.innerHTML =
+            `
+            <tr>
+                <td colspan="6">
+                    No devices discovered.
+                </td>
+            </tr>
+            `;
+
+        return;
+
+    }
+
+
+    body.innerHTML =
+        devices.map(device => {
+
+
+            let roleClass =
+                "role-device";
+
+
+            if (
+                device.role ===
+                "Gateway"
+            ) {
+
+                roleClass =
+                    "role-gateway";
+
+            } else if (
+                device.role ===
+                "Local Host"
+            ) {
+
+                roleClass =
+                    "role-local";
+
+            }
+
+
+            const statusClass =
+                device.status === "up"
+                    ? "status-up"
+                    : "status-down";
+
+
+            return `
+
+                <tr>
+
+                    <td>
+                        ${escapeHtml(
+                            device.ip || "-"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            device.hostname ||
+                            "Unknown"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            device.mac ||
+                            "Unknown"
+                        )}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            device.vendor ||
+                            "Unknown"
+                        )}
+                    </td>
+
+                    <td
+                        class="role ${roleClass}"
+                    >
+                        ${escapeHtml(
+                            device.role ||
+                            "Device"
+                        )}
+                    </td>
+
+                    <td
+                        class="${statusClass}"
+                    >
+                        ${escapeHtml(
+                            device.status ||
+                            "Unknown"
+                        )}
+                    </td>
+
+                </tr>
+
+            `;
+
+        })
+        .join("");
+
+}
+
+
+/* TOPOLOGY */
+
+
+function drawTopology(topology) {
+
+    const svg =
+        document.getElementById(
+            "topology-svg"
+        );
+
+
+    svg.innerHTML = "";
+
+
+    const nodes =
+        topology.nodes || [];
+
+
+    const edges =
+        topology.edges || [];
+
+
+    if (!nodes.length) {
+
+        svg.innerHTML =
+            `
+            <text
+                x="50%"
+                y="50%"
+                text-anchor="middle"
+                fill="#64748b"
+            >
+                No topology data available
+            </text>
+            `;
+
+        return;
+
+    }
+
+
+    const width = 900;
+
+    const height = 500;
+
+
+    svg.setAttribute(
+        "viewBox",
+        `0 0 ${width} ${height}`
+    );
+
+
+    const positions = {};
+
+
+    const centerX =
+        width / 2;
+
+
+    const centerY =
+        height / 2;
+
+
+    /* GATEWAY */
+
+
+    const gateway =
+        nodes.find(
+            node =>
+                node.role ===
+                "Gateway"
+        );
+
+
+    if (gateway) {
+
+        positions[gateway.id] = {
+            x: centerX,
+            y: centerY
+        };
+
+    }
+
+
+    /* OTHER NODES */
+
+
+    const remaining =
+        nodes.filter(
+            node =>
+                node.id !==
+                gateway?.id
+        );
+
+
+    remaining.forEach(
+        (node, index) => {
+
+
+            const angle =
+                (
+                    index /
+                    Math.max(
+                        remaining.length,
+                        1
+                    )
+                )
+                * Math.PI
+                * 2;
+
+
+            const radius =
+                remaining.length === 1
+                    ? 0
+                    : 170;
+
+
+            positions[node.id] = {
+
+                x:
+                    centerX +
+                    Math.cos(angle) *
+                    radius,
+
+                y:
+                    centerY +
+                    Math.sin(angle) *
+                    radius
+
+            };
+
+        }
+    );
+
+
+    /* EDGES */
+
+
+    edges.forEach(edge => {
+
+        const source =
+            positions[
+                edge.source
+            ];
+
+
+        const target =
+            positions[
+                edge.target
+            ];
+
+
+        if (
+            !source ||
+            !target
+        ) {
+
+            return;
+
+        }
+
+
+        const line =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "line"
+            );
+
+
+        line.setAttribute(
+            "x1",
+            source.x
+        );
+
+
+        line.setAttribute(
+            "y1",
+            source.y
+        );
+
+
+        line.setAttribute(
+            "x2",
+            target.x
+        );
+
+
+        line.setAttribute(
+            "y2",
+            target.y
+        );
+
+
+        line.setAttribute(
+            "stroke",
+            "#475569"
+        );
+
+
+        line.setAttribute(
+            "stroke-width",
+            "2"
+        );
+
+
+        svg.appendChild(
+            line
+        );
+
+    });
+
+
+    /* NODES */
+
+
+    nodes.forEach(node => {
+
+        const position =
+            positions[node.id];
+
+
+        if (!position) {
+
+            return;
+
+        }
+
+
+        const group =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "g"
+            );
+
+
+        /* NODE CIRCLE */
+
+
+        const circle =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "circle"
+            );
+
+
+        circle.setAttribute(
+            "cx",
+            position.x
+        );
+
+
+        circle.setAttribute(
+            "cy",
+            position.y
+        );
+
+
+        circle.setAttribute(
+            "r",
+            "30"
+        );
+
+
+        if (
+            node.role ===
+            "Gateway"
+        ) {
+
+            circle.setAttribute(
+                "fill",
+                "#2563eb"
+            );
+
+        } else if (
+            node.role ===
+            "Local Host"
+        ) {
+
+            circle.setAttribute(
+                "fill",
+                "#16a34a"
+            );
+
+        } else {
+
+            circle.setAttribute(
+                "fill",
+                "#64748b"
+            );
+
+        }
+
+
+        group.appendChild(
+            circle
+        );
+
+
+        /* NODE LABEL */
+
+
+        const text =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+            );
+
+
+        text.setAttribute(
+            "x",
+            position.x
+        );
+
+
+        text.setAttribute(
+            "y",
+            position.y + 50
+        );
+
+
+        text.setAttribute(
+            "text-anchor",
+            "middle"
+        );
+
+
+        text.setAttribute(
+            "fill",
+            "#e5e7eb"
+        );
+
+
+        text.setAttribute(
+            "font-size",
+            "14"
+        );
+
+
+        text.textContent =
+            node.label ||
+            node.ip;
+
+
+        group.appendChild(
+            text
+        );
+
+
+        /* NODE IP */
+
+
+        const ipText =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "text"
+            );
+
+
+        ipText.setAttribute(
+            "x",
+            position.x
+        );
+
+
+        ipText.setAttribute(
+            "y",
+            position.y + 67
+        );
+
+
+        ipText.setAttribute(
+            "text-anchor",
+            "middle"
+        );
+
+
+        ipText.setAttribute(
+            "fill",
+            "#64748b"
+        );
+
+
+        ipText.setAttribute(
+            "font-size",
+            "10"
+        );
+
+
+        ipText.textContent =
+            node.ip || "";
+
+
+        group.appendChild(
+            ipText
+        );
+
+
+        svg.appendChild(
+            group
+        );
+
+    });
+
+}
+
+
+/* HTML ESCAPING */
+
+
+function escapeHtml(value) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+
+    div.textContent =
+        String(value);
+
+
+    return div.innerHTML;
+
+}
+
+
+/* INITIAL LOAD */
+
+
+loadDashboard();
+
+
+/* REFRESH EVERY 5 SECONDS */
+
+
+setInterval(
+    loadDashboard,
+    5000
+);
+
+
+</script>
+
+
+</body>
+
+</html>
