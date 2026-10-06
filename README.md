@@ -82,7 +82,7 @@ The NetMap dashboard provides a centralized view of network information, active 
 
 ## Network Topology
 
-NetMap generates a visual representation of the discovered network, including the gateway, local host, and other discovered devices.
+NetMap generates a visual representation of the discovered network, including the gateway, local host, and discovered devices.
 
 <p align="center">
   <img src="screenshots/topology.png" alt="NetMap Network Topology" width="90%">
@@ -99,7 +99,6 @@ The live monitoring engine repeatedly scans the network and compares the current
 </p>
 
 ---
-
 
 ## Network Discovery
 
