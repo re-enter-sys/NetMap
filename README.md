@@ -1287,7 +1287,7 @@ NetMap/
 ├── tests/
 │   ├── test_alerts.py
 │   ├── test_classifier.py
-│   ├── test_gateway.py
+│   ├── testgateway.local.py
 │   ├── test_monitor.py
 │   ├── test_network.py
 │   ├── test_reporter.py
@@ -1634,7 +1634,7 @@ Example discovered devices:
     Local Host
 
 10.10.10.1
-    _gateway
+    gateway.local
     VMware
     Gateway
 

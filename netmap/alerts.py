@@ -387,7 +387,7 @@ def severity_at_least(
 if __name__ == "__main__":
 
     test_device = {
-        "ip": "10.10.10.150",
+        "ip": "10.10.10.250",
         "hostname": "test-device",
         "mac": "00:11:22:33:44:55",
         "role": "Device",
